@@ -53,19 +53,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scenes\Scipts\Terrain\GenerateChunk.cs" />
-     <Compile Include="Assets\Scenes\Scipts\Terrain\GenerateTerrain.cs" />
+     <Compile Include="Assets\Scipts\Terrain\GenerateChunk.cs" />
+     <Compile Include="Assets\Scipts\Terrain\GenerateTerrain.cs" />
  <Reference Include="UnityEditor.StandardEvents">
- <HintPath>C:/Users/Paul/Documents/PTUT Terrain AR/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
+ <HintPath>C:/Users/Paul/Desktop/PTUT/PTUT-Terrain-RA/PTUT Terrain AR/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro.Editor">
- <HintPath>C:/Users/Paul/Documents/PTUT Terrain AR/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ <HintPath>C:/Users/Paul/Desktop/PTUT/PTUT-Terrain-RA/PTUT Terrain AR/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.PackageManagerUI.Editor">
- <HintPath>C:/Users/Paul/Documents/PTUT Terrain AR/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+ <HintPath>C:/Users/Paul/Desktop/PTUT/PTUT-Terrain-RA/PTUT Terrain AR/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro">
- <HintPath>C:/Users/Paul/Documents/PTUT Terrain AR/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ <HintPath>C:/Users/Paul/Desktop/PTUT/PTUT-Terrain-RA/PTUT Terrain AR/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
