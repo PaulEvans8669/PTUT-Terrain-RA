@@ -5,14 +5,19 @@ using UnityEngine;
 public class GenerateTerrain : MonoBehaviour {
 
     private GenerateChunk chunkGenerator;
-    private int SIZE;
+    private int CHUNK_SIZE = 100;
     public int terrainSize;
-    GameObject firstChunk;
+    private GameObject firstChunk;
+    
+    public int getChunkSize()
+    {
+        return CHUNK_SIZE;
+    }
+
 	// Use this for initialization
 	void Start () {
         chunkGenerator = transform.root.gameObject.GetComponent<GenerateChunk>();
-        SIZE = 100;
-        firstChunk = this.gameObject.transform.GetChild(0).gameObject;
+        firstChunk = this.gameObject.transform.GetChild(1).gameObject;
         for (int z = 0; z < terrainSize; z++) {
             for (int x = 0; x < terrainSize; x++)
             {
@@ -20,7 +25,7 @@ public class GenerateTerrain : MonoBehaviour {
                 {
                     GameObject newChunk = Instantiate(firstChunk);
                     newChunk.name = "Chunk " + (z * terrainSize + x);
-                    newChunk.transform.Translate(new Vector3(x * SIZE, 0, -z * SIZE));
+                    newChunk.transform.Translate(new Vector3(x * CHUNK_SIZE, 0, -z * CHUNK_SIZE));
                     newChunk.transform.parent = this.gameObject.transform;
                 }
             }
