@@ -53,8 +53,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scipts\Terrain\GenerateChunk.cs" />
-     <Compile Include="Assets\Scipts\Terrain\GenerateTerrain.cs" />
+     <Compile Include="Assets\Scipts\Terrain\Editing\ChunkEditing.cs" />
+     <Compile Include="Assets\Scipts\Terrain\Generating\GenerateChunk.cs" />
+     <Compile Include="Assets\Scipts\Terrain\Generating\GenerateTerrain.cs" />
  <Reference Include="UnityEditor.StandardEvents">
  <HintPath>C:/Users/Paul/Desktop/PTUT/PTUT-Terrain-RA/PTUT Terrain AR/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>
