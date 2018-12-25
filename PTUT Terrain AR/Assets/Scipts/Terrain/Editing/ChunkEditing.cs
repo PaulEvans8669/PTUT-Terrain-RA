@@ -9,10 +9,6 @@ public class ChunkEditing : MonoBehaviour {
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
     private Camera mainCamera;
-    private Projector projector;
-    private string localDirectory;
-    private Material projectorMaterial;
-    private Shader shader;
 
 
     // Use this for initialization
@@ -21,12 +17,7 @@ public class ChunkEditing : MonoBehaviour {
         meshRenderer = this.gameObject.GetComponentInChildren<MeshRenderer>();
         meshCollider = this.gameObject.GetComponentInChildren<MeshCollider>();
         mainCamera = Camera.main;
-        projector = new Projector();
-        localDirectory = Directory.GetCurrentDirectory();
-        projectorMaterial = new Material(shader);
-        Texture2D tex = new Texture2D(1500,1500);
-        projectorMaterial.SetTexture("_MainTex", new Texture(Directory.GetParent(localDirectory)+"/Images/brush1.mat"));
-        projector.material = 
+
 
     }
 
@@ -35,8 +26,8 @@ public class ChunkEditing : MonoBehaviour {
     {
         // Do a raycast into the world based on the user's
         // head position and orientation.
-        var headPosition = Camera.main.transform.position;
-        var gazeDirection = Camera.main.transform.forward;
+        var headPosition = mainCamera.transform.position;
+        var gazeDirection = mainCamera.transform.forward;
         Mesh mesh = GetComponent<MeshFilter>().mesh;
         int chunkSize = 50;
 
@@ -44,11 +35,12 @@ public class ChunkEditing : MonoBehaviour {
         RaycastHit hitInfo = new RaycastHit();
         if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
         {
-            projector.enabled = false;
+            //projector.enabled = false;
             // Move the cursor to the point where the raycast hit.
             //this.transform.position = hitInfo.point;
 
             Vector3 hitPoint = hitInfo.point;
+            Collider collider = hitInfo.collider;
 
             Vector3 coordHitMesh = meshCollider.transform.InverseTransformPoint(hitPoint);
             //Debug.Log("x: " + hitPoint.x + " y: " + hitPoint.y + " z: " + hitPoint.z);
@@ -57,7 +49,7 @@ public class ChunkEditing : MonoBehaviour {
         }
         else
         {
-            projector.enabled = false;
+            //projector.enabled = false;
         }
     }
 }

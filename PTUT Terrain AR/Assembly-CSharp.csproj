@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scipts\Terrain\Editing\ChunkEditing.cs" />
+     <Compile Include="Assets\Scipts\Terrain\Editing\EditTerrain.cs" />
      <Compile Include="Assets\Scipts\Terrain\Generating\GenerateChunk.cs" />
      <Compile Include="Assets\Scipts\Terrain\Generating\GenerateTerrain.cs" />
  <Reference Include="UnityEditor.StandardEvents">

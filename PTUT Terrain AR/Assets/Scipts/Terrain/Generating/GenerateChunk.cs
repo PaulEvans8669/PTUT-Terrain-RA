@@ -5,8 +5,6 @@ using UnityEngine;
 public class GenerateChunk : MonoBehaviour {
 
     private int chunkSize = 100;
-
-    public int xc, yc, a;
     
 
     private void Awake()
@@ -17,11 +15,11 @@ public class GenerateChunk : MonoBehaviour {
         Mesh mesh = GetComponent<MeshFilter>().mesh;
         Vector3[] vertices = mesh.vertices;
         Vector3[] normals = mesh.normals;
-        for (int y = 0; y < chunkSize + 1; y++)
+        for (int z = 0; z < chunkSize + 1; z++)
         {
             for (int x = 0; x < chunkSize + 1; x++)
             {
-                int index = y * (chunkSize + 1) + x;
+                int index = z * (chunkSize + 1) + x;
                 vertices[index] = new Vector3(vertices[index].x, 0, vertices[index].z);
                /*
                 if (x<(chunkSize+1)/2)
@@ -58,12 +56,12 @@ public class GenerateChunk : MonoBehaviour {
 
         Vector4 tangent = new Vector4(1f, 0f, 0f, -1f);
 
-        for (int i = 0, y = 0; y <= chunkSize; y++)
+        for (int i = 0, z = 0; z <= chunkSize; z++)
         {
             for (int x = 0; x <= chunkSize; x++, i++)
             {
-                vertices.Add(new Vector3(x, 0, y));
-                uv.Add(new Vector2((float)x / chunkSize, (float)y / chunkSize));
+                vertices.Add(new Vector3(x, 0, z));
+                uv.Add(new Vector2((float)x / chunkSize, (float)z / chunkSize));
                 tangents.Add(tangent);
             }
         }
@@ -75,7 +73,7 @@ public class GenerateChunk : MonoBehaviour {
 
 
         int[] triangles = new int[chunkSize * chunkSize * 6];
-        for (int ti = 0, vi = 0, y = 0; y < chunkSize; y++, vi++)
+        for (int ti = 0, vi = 0, z = 0; z < chunkSize; z++, vi++)
         {
             for (int x = 0; x < chunkSize; x++, ti += 6, vi++)
             {
@@ -101,15 +99,15 @@ public class GenerateChunk : MonoBehaviour {
         mesh.GetVertices(vertices);
         Debug.Log("Vertices: "+vertices.ToString());
 
-        for (int y = 0; y < chunkSize + 1; y++)
+        for (int z = 0; z < chunkSize + 1; z++)
         {
             for (int x = 0; x < chunkSize + 1; x++)
             {
-                int index = y * (chunkSize + 1) + x;
+                int index = z * (chunkSize + 1) + x;
                 float height = vertices[index].y;
                 Debug.Log("Height: " + height);
                 Color color = new Color(255, 255, 255);
-                texture.SetPixel(x, y, color);
+                texture.SetPixel(x, z, color);
             }
         }
         texture.Apply();

@@ -7,12 +7,13 @@ public class GenerateTerrain : MonoBehaviour {
     private GenerateChunk chunkGenerator;
     private int SIZE;
     public int terrainSize;
-    GameObject firstChunk;
+    private GameObject firstChunk;
+
 	// Use this for initialization
 	void Start () {
         chunkGenerator = transform.root.gameObject.GetComponent<GenerateChunk>();
         SIZE = 100;
-        firstChunk = this.gameObject.transform.GetChild(0).gameObject;
+        firstChunk = this.gameObject.transform.GetChild(1).gameObject;
         for (int z = 0; z < terrainSize; z++) {
             for (int x = 0; x < terrainSize; x++)
             {
