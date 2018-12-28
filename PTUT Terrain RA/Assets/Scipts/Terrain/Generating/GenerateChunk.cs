@@ -5,12 +5,14 @@ using UnityEngine;
 public class GenerateChunk : MonoBehaviour {
 
     private int CHUNK_SIZE;
+    private int terrainSize;
     
 
 
     private void Awake()
     {
-        CHUNK_SIZE = transform.parent.gameObject.GetComponent<GenerateTerrain>().getChunkSize();
+        CHUNK_SIZE = GameObject.Find("Terrain").gameObject.GetComponent<GenerateTerrain>().getChunkSize();
+        terrainSize = GameObject.Find("Terrain").gameObject.GetComponent<GenerateTerrain>().getTerrainSize(); ;
         //Debug.Log("CS: " + CHUNK_SIZE);
         GenerateMesh();
 
@@ -39,7 +41,7 @@ public class GenerateChunk : MonoBehaviour {
         MeshCollider meshCollider = gameObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
         meshCollider.sharedMesh = mesh;
 
-        GenerateTexture();
+        //GenerateTexture();
 
     }
 
