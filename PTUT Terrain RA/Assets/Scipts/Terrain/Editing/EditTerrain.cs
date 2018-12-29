@@ -6,18 +6,15 @@ public class EditTerrain : MonoBehaviour {
 
     private int CHUNK_SIZE;
     private int TEXTURE_SIZE;
-    private int terrainSize;
-
-    public Color coloooor;
+    private int TERRAIN_SIZE;
+    
 
     private Camera mainCamera;
 
     private GameObject spotLight;
-    private Light light;
-    private Texture2D cookieTexture;
-    public int tailleCookie = 10;
-
-    private List<Vector3> vertices;
+    private Light spotLigh_tLight;
+    public int taillePinceau = 10;
+    
     
     
 
@@ -25,34 +22,32 @@ public class EditTerrain : MonoBehaviour {
     void Start () {
         CHUNK_SIZE = this.gameObject.GetComponent<GenerateTerrain>().getChunkSize();
         TEXTURE_SIZE = this.gameObject.GetComponent<GenerateTerrain>().getTextureSize();
-        terrainSize = this.gameObject.GetComponent<GenerateTerrain>().getTerrainSize();
+        TERRAIN_SIZE = this.gameObject.GetComponent<GenerateTerrain>().getTerrainSize();
 
         mainCamera = Camera.main;
         spotLight = GameObject.Find("Spot Light");
-        light = spotLight.GetComponent<Light>();
-        cookieTexture = light.cookie as Texture2D;
+        spotLigh_tLight = spotLight.GetComponent<Light>();
         
-        vertices = new List<Vector3>();
         
     }
 	
 	// Update is called once per frame
 	void Update () {
-        if (tailleCookie < 1 )
+        if (taillePinceau < 1 )
         {
-            tailleCookie = 1;
+            taillePinceau = 1;
         }
-        else if(tailleCookie > 100)
+        else if(taillePinceau > 100)
         {
-            tailleCookie = 100;
+            taillePinceau = 100;
         }
-        light.cookieSize = terrainSize*tailleCookie*CHUNK_SIZE/100;
+        spotLigh_tLight.cookieSize = TERRAIN_SIZE*taillePinceau*CHUNK_SIZE/100;
 
 
         RaycastHit hitInfo = new RaycastHit();
         if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
         {
-            light.enabled = true;
+            spotLigh_tLight.enabled = true;
             // Move the cursor to the point where the raycast hit.
             //this.transform.position = hitInfo.point;
 
@@ -69,7 +64,7 @@ public class EditTerrain : MonoBehaviour {
             {
 
                 GameObject targetChunk = collider.gameObject;
-                //editHeights(targetChunk, coordHitMesh);
+                editHeights(targetChunk, coordHitMesh);
                 editColor(targetChunk, coordHitMesh);
                 
             }
@@ -77,7 +72,7 @@ public class EditTerrain : MonoBehaviour {
         }
         else
         {
-            light.enabled = false;
+            spotLigh_tLight.enabled = false;
         }
 
 
@@ -85,19 +80,16 @@ public class EditTerrain : MonoBehaviour {
 
     private void editHeights(GameObject chunk, Vector3 centerPoint)
     {
-        MeshFilter MF = chunk.GetComponent<MeshFilter>();
-        Mesh mesh = MF.mesh;
-        mesh.GetVertices(vertices);
 
         int x = (int)Mathf.Round(centerPoint.x);
         int y = (int)Mathf.Round(centerPoint.z);
 
         //Debug.Log(centerPoint.ToString());
-        int minY = (int)(y - (TEXTURE_SIZE * ((float)light.cookieSize / 100)) / 2) + 1;
-        int maxY = (int)(y + (TEXTURE_SIZE * ((float)light.cookieSize / 100)) / 2);
+        int minY = (int)(y - (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100))) + 1;
+        int maxY = (int)(y + (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)));
 
-        int minX = (int)(x - (TEXTURE_SIZE * ((float)light.cookieSize / 100)) / 2) + 1;
-        int maxX = (int)(x + (TEXTURE_SIZE * ((float)light.cookieSize / 100)) / 2);
+        int minX = (int)(x - (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100))) + 1;
+        int maxX = (int)(x + (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)));
 
         for (int i = minY; i < maxY; i++)
         {
@@ -111,7 +103,7 @@ public class EditTerrain : MonoBehaviour {
                 if (correctChunk != null)
                 {
 
-                    int index = editY * TEXTURE_SIZE + j;
+                    int index = editY * TEXTURE_SIZE + editX;
 
 
                     int distZ = Mathf.Abs(y - Mathf.Abs(i));
@@ -121,23 +113,25 @@ public class EditTerrain : MonoBehaviour {
                     int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
                     float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
                     //Debug.Log("Dist: " + dist);
-                    float height = vertices[index].y;
-                    vertices[index] = new Vector3(vertices[index].x, height + ((maxDist - dist) / maxDist), vertices[index].z);
-                }
 
+
+                    Mesh mesh = correctChunk.GetComponent<MeshFilter>().mesh;
+                    List<Vector3> vertices = new List<Vector3>();
+                    mesh.GetVertices(vertices);
+                    try {
+                        float height = vertices[index].y;
+                        vertices[index] = new Vector3(vertices[index].x, height + ((maxDist - dist) / maxDist), vertices[index].z);
+
+                    }catch(System.ArgumentOutOfRangeException ex)
+                    {
+                        Debug.Log(ex.Message+" "+editY +" "+editX);
+                    }
+                    mesh.SetVertices(vertices);
+                }
             }
         }
-        mesh.SetVertices(vertices);
         //chunk.GetComponent<MeshCollider>().sharedMesh = mesh;
 
-
-    }
-
-    private void modifyHeight(ref Mesh mesh, Vector3 centerPoint)
-    {
-
-
-        
 
     }
 
@@ -157,11 +151,11 @@ public class EditTerrain : MonoBehaviour {
         int y = (int)Mathf.Round(centerPoint.z);
 
         //Debug.Log(centerPoint.ToString());
-        int minY = (int)(y - (TEXTURE_SIZE * ((float)light.cookieSize / 100))/2)+1;
-        int maxY = (int)(y + (TEXTURE_SIZE * ((float)light.cookieSize / 100))/2);
+        int minY = (int)(y - (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)))+1;
+        int maxY = (int)(y + (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)));
 
-        int minX = (int)(x - (TEXTURE_SIZE * ((float)light.cookieSize / 100))/2)+1;
-        int maxX = (int)(x + (TEXTURE_SIZE * ((float)light.cookieSize / 100))/2);
+        int minX = (int)(x - (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)))+1;
+        int maxX = (int)(x + (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)));
 
         for (int i = minY; i <= maxY; i++)
         {
@@ -170,26 +164,26 @@ public class EditTerrain : MonoBehaviour {
                 int editY = i;
                 int editX = j;
 
-                int distY = Mathf.Abs(y - Mathf.Abs(i));
-                int distX = Mathf.Abs(x - Mathf.Abs(j));
-                float dist = Mathf.Sqrt(Mathf.Pow(distY, 2) + Mathf.Pow(distX, 2));
-                int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
-                int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
-                float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
-                //Debug.Log("y: " + i + "\tx: " + j + " =>" + dist);
-
 
                 GameObject correctChunk = getCorrectChunk(chunk, ref editY, ref editX);
-                if(correctChunk != null)
+                if (correctChunk != null)
                 {
+
+                    int distY = Mathf.Abs(y - Mathf.Abs(i));
+                    int distX = Mathf.Abs(x - Mathf.Abs(j));
+                    float dist = Mathf.Sqrt(Mathf.Pow(distY, 2) + Mathf.Pow(distX, 2));
+                    int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
+                    int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
+                    float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
+                    //Debug.Log("y: " + i + "\tx: " + j + " =>" + dist);
+
+
                     //Debug.Log("R: " + 255 * dist / light.cookieSize);
-                    Color c = new Color(dist/maxDist, (maxDist - dist) / maxDist, 0);
+                    Color c = new Color(dist / maxDist, (maxDist - dist) / maxDist, 0);
 
                     Texture2D texture = correctChunk.GetComponent<Renderer>().material.mainTexture as Texture2D;
-                    if (editX >= 0 && editX <= TEXTURE_SIZE && editY >= 0 && editY <= TEXTURE_SIZE)
-                    {
-                        texture.SetPixel(editX, editY, c);
-                    }
+
+                    texture.SetPixel(editX, editY, c);
 
                     if (!modifiedTextures.Contains(texture))
                     {
@@ -237,7 +231,7 @@ public class EditTerrain : MonoBehaviour {
     {
         int id = int.Parse(chunk.name.Split(' ')[1]);
         int idChunkOnTheLeft = id - 1;
-        if (idChunkOnTheLeft >= 0 && (int)(idChunkOnTheLeft/terrainSize) == (int)(id/terrainSize))
+        if (idChunkOnTheLeft >= 0 && (int)(idChunkOnTheLeft/TERRAIN_SIZE) == (int)(id/TERRAIN_SIZE))
         {
             return GameObject.Find("Chunk " + idChunkOnTheLeft);
         }
@@ -248,7 +242,7 @@ public class EditTerrain : MonoBehaviour {
     {
         int id = int.Parse(chunk.name.Split(' ')[1]);
         int idChunkOnTheRight = id + 1;
-        if (idChunkOnTheRight < (1+id/terrainSize)*terrainSize)
+        if (idChunkOnTheRight < (1+id/TERRAIN_SIZE)*TERRAIN_SIZE)
         {
             return GameObject.Find("Chunk " + idChunkOnTheRight);
         }
@@ -258,7 +252,7 @@ public class EditTerrain : MonoBehaviour {
     private GameObject getTopChunk(GameObject chunk)
     {
         int id = int.Parse(chunk.name.Split(' ')[1]);
-        int idChunkAbove = id - terrainSize;
+        int idChunkAbove = id - TERRAIN_SIZE;
         if (idChunkAbove >= 0)
         {
             return GameObject.Find("Chunk " + idChunkAbove);
@@ -269,8 +263,8 @@ public class EditTerrain : MonoBehaviour {
     private GameObject getBottomChunk(GameObject chunk)
     {
         int id = int.Parse(chunk.name.Split(' ')[1]);
-        int idChunkUnder = id + terrainSize;
-        if (idChunkUnder < terrainSize*terrainSize)
+        int idChunkUnder = id + TERRAIN_SIZE;
+        if (idChunkUnder < TERRAIN_SIZE*TERRAIN_SIZE)
         {
             return GameObject.Find("Chunk " + idChunkUnder);
         }

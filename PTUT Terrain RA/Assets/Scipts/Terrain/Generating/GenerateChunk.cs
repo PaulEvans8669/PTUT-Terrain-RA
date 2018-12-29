@@ -5,14 +5,11 @@ using UnityEngine;
 public class GenerateChunk : MonoBehaviour {
 
     private int CHUNK_SIZE;
-    private int terrainSize;
-    
 
 
     private void Awake()
     {
         CHUNK_SIZE = GameObject.Find("Terrain").gameObject.GetComponent<GenerateTerrain>().getChunkSize();
-        terrainSize = GameObject.Find("Terrain").gameObject.GetComponent<GenerateTerrain>().getTerrainSize(); ;
         //Debug.Log("CS: " + CHUNK_SIZE);
         GenerateMesh();
 
@@ -41,7 +38,7 @@ public class GenerateChunk : MonoBehaviour {
         MeshCollider meshCollider = gameObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
         meshCollider.sharedMesh = mesh;
 
-        //GenerateTexture();
+        mesh.RecalculateNormals();
 
     }
 
@@ -92,36 +89,5 @@ public class GenerateChunk : MonoBehaviour {
 
         mesh.SetTriangles(triangles,0);
         mesh.RecalculateNormals();
-    }
-
-    private void GenerateTexture()
-    {
-        Texture2D texture = new Texture2D(CHUNK_SIZE + 1, CHUNK_SIZE + 1);
-        GetComponent<Renderer>().material.mainTexture = texture;
-
-        Mesh mesh = GetComponent<MeshFilter>().mesh;
-        List<Vector3> vertices = new List<Vector3>();
-        mesh.GetVertices(vertices);
-
-        for (int z = 0; z < CHUNK_SIZE + 1; z++)
-        {
-            for (int x = 0; x < CHUNK_SIZE + 1; x++)
-            {
-                int index = z * (CHUNK_SIZE + 1) + x;
-                float height = vertices[index].y;
-                Color color = new Color(255, 255, 255);
-                texture.SetPixel(x, z, color);
-            }
-        }
-        texture.Apply();
-
-
-    }
-    void Update()
-    {
-
-
-
-
     }
 }

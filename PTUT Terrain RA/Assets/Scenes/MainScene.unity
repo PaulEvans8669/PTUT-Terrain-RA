@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f9c61e37d7081c48aede638bd419520, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainSize: 4
+  TERRAIN_SIZE: 1
 --- !u!4 &304147674
 Transform:
   m_ObjectHideFlags: 0
@@ -233,8 +233,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98ab62bd779962643bf61f57b2447363, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coloooor: {r: 0, g: 0, b: 0, a: 0}
-  tailleCookie: 10
+  taillePinceau: 10
 --- !u!1 &534669902
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class GenerateTerrain : MonoBehaviour {
 
-    private GenerateChunk chunkGenerator;
-    private int CHUNK_SIZE;
+    private int CHUNK_SIZE = 50;
     private int TEXTURE_SIZE;
-    public int terrainSize;
+    public int TERRAIN_SIZE = 1;
     private GameObject modelChunk;
     
     public int getChunkSize()
@@ -17,7 +16,7 @@ public class GenerateTerrain : MonoBehaviour {
 
     public int getTerrainSize()
     {
-        return terrainSize;
+        return TERRAIN_SIZE;
     }
 
     public int getTextureSize()
@@ -26,13 +25,11 @@ public class GenerateTerrain : MonoBehaviour {
     }
 	// Use this for initialization
 	void Start () {
-        CHUNK_SIZE = 25;
         TEXTURE_SIZE = CHUNK_SIZE+1;
-        chunkGenerator = transform.root.gameObject.GetComponent<GenerateChunk>();
         modelChunk = GameObject.Find("ModelChunk");
 
-        for (int z = 0; z < terrainSize; z++) {
-            for (int x = 0; x < terrainSize; x++)
+        for (int z = 0; z < TERRAIN_SIZE; z++) {
+            for (int x = 0; x < TERRAIN_SIZE; x++)
             {
                 addNewChunk(z,  x);
             }
@@ -45,8 +42,8 @@ public class GenerateTerrain : MonoBehaviour {
     {
         
 
-        GameObject newChunk = Instantiate(modelChunk, new Vector3(x * CHUNK_SIZE, 0, -z * CHUNK_SIZE), Quaternion.identity, this.gameObject.transform);
-        newChunk.name = "Chunk " + (z * terrainSize + x);
+        GameObject newChunk = Instantiate(modelChunk, new Vector3(x * CHUNK_SIZE, 0, z * CHUNK_SIZE), Quaternion.identity, this.gameObject.transform);
+        newChunk.name = "Chunk " + (z * TERRAIN_SIZE + x);
         newChunk.AddComponent<GenerateChunk>();
         Texture2D texture = new Texture2D(TEXTURE_SIZE, TEXTURE_SIZE);
         texture.filterMode = FilterMode.Point;
