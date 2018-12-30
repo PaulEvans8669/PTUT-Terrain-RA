@@ -12,11 +12,10 @@ public class EditTerrain : MonoBehaviour {
     private Camera mainCamera;
 
     private GameObject spotLight;
-    private Light spotLigh_tLight;
+    private Light spotLight_Light;
     public int taillePinceau = 10;
-    
-    
-    
+
+    Dictionary<GameObject, List<Vector3>> modifiedChunks = new Dictionary<GameObject, List<Vector3>>();
 
     // Use this for initialization
     void Start () {
@@ -26,9 +25,8 @@ public class EditTerrain : MonoBehaviour {
 
         mainCamera = Camera.main;
         spotLight = GameObject.Find("Spot Light");
-        spotLigh_tLight = spotLight.GetComponent<Light>();
-        
-        
+        spotLight_Light = spotLight.GetComponent<Light>();
+
     }
 	
 	// Update is called once per frame
@@ -41,15 +39,19 @@ public class EditTerrain : MonoBehaviour {
         {
             taillePinceau = 100;
         }
-        spotLigh_tLight.cookieSize = TERRAIN_SIZE*taillePinceau*CHUNK_SIZE/100;
+
+        int newSpotLight_LightSize = /*TERRAIN_SIZE**/taillePinceau * CHUNK_SIZE / 100;
+        if (newSpotLight_LightSize < 4)
+        {
+            newSpotLight_LightSize = 4;
+        }
+        spotLight_Light.cookieSize = newSpotLight_LightSize;
 
 
         RaycastHit hitInfo = new RaycastHit();
         if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
         {
-            spotLigh_tLight.enabled = true;
-            // Move the cursor to the point where the raycast hit.
-            //this.transform.position = hitInfo.point;
+            spotLight_Light.enabled = true;
 
             Vector3 hitPoint = hitInfo.point;
             Collider collider = hitInfo.collider;
@@ -58,21 +60,21 @@ public class EditTerrain : MonoBehaviour {
             Vector3 coordSpotLight = hitPoint;
             coordSpotLight.y += 100;
             spotLight.transform.position = coordSpotLight;
-            //Debug.Log("x: " + hitPoint.x + " y: " + hitPoint.y + " z: " + hitPoint.z);
 
             if (Input.GetMouseButton(0))
             {
 
                 GameObject targetChunk = collider.gameObject;
-                editHeights(targetChunk, coordHitMesh);
                 editColor(targetChunk, coordHitMesh);
-                
+                editHeights(targetChunk, coordHitMesh);
+                recalculateColliders();
+
             }
 
         }
         else
         {
-            spotLigh_tLight.enabled = false;
+            spotLight_Light.enabled = false;
         }
 
 
@@ -81,19 +83,24 @@ public class EditTerrain : MonoBehaviour {
     private void editHeights(GameObject chunk, Vector3 centerPoint)
     {
 
+
         int x = (int)Mathf.Round(centerPoint.x);
         int y = (int)Mathf.Round(centerPoint.z);
 
         //Debug.Log(centerPoint.ToString());
-        int minY = (int)(y - (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100))) + 1;
-        int maxY = (int)(y + (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)));
+        int minY = (int)(y - (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100))) + 1;
+        int maxY = (int)(y + (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100)));
 
-        int minX = (int)(x - (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100))) + 1;
-        int maxX = (int)(x + (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)));
+        int minX = (int)(x - (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100))) + 1;
+        int maxX = (int)(x + (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100)));
 
-        for (int i = minY; i < maxY; i++)
+        int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
+        int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
+        float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
+
+        for (int i = minY; i <= maxY; i++)
         {
-            for (int j = minX; j < maxX; j++)
+            for (int j = minX; j <= maxX; j++)
             {
 
                 int editY = i;
@@ -109,53 +116,48 @@ public class EditTerrain : MonoBehaviour {
                     int distZ = Mathf.Abs(y - Mathf.Abs(i));
                     int distX = Mathf.Abs(x - Mathf.Abs(j));
                     float dist = Mathf.Sqrt(Mathf.Pow(distZ, 2) + Mathf.Pow(distX, 2));
-                    int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
-                    int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
-                    float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
                     //Debug.Log("Dist: " + dist);
 
 
-                    Mesh mesh = correctChunk.GetComponent<MeshFilter>().mesh;
-                    List<Vector3> vertices = new List<Vector3>();
-                    mesh.GetVertices(vertices);
-                    try {
-                        float height = vertices[index].y;
-                        vertices[index] = new Vector3(vertices[index].x, height + ((maxDist - dist) / maxDist), vertices[index].z);
-
-                    }catch(System.ArgumentOutOfRangeException ex)
+                    if (!modifiedChunks.ContainsKey(correctChunk))
                     {
-                        Debug.Log(ex.Message+" "+editY +" "+editX);
+                        List<Vector3> chunkVertices = new List<Vector3>();
+                        correctChunk.GetComponent<MeshFilter>().mesh.GetVertices(chunkVertices);
+                        modifiedChunks.Add(correctChunk, chunkVertices);
                     }
-                    mesh.SetVertices(vertices);
+                    List<Vector3> vertices = modifiedChunks[correctChunk];
+                    
+                    float height = vertices[index].y;
+                    vertices[index] = new Vector3(vertices[index].x, height + ((maxDist - dist) / maxDist), vertices[index].z);
+                        
                 }
             }
         }
-        //chunk.GetComponent<MeshCollider>().sharedMesh = mesh;
+    }
 
-
+    private void recalculateColliders()
+    {
+        foreach (KeyValuePair<GameObject, List<Vector3>> modifiedChunk in modifiedChunks)
+        {
+            modifiedChunk.Key.GetComponent<MeshFilter>().mesh.SetVertices(modifiedChunk.Value);
+            modifiedChunk.Key.GetComponent<MeshCollider>().sharedMesh = modifiedChunk.Key.GetComponent<MeshFilter>().mesh;
+        }
+        modifiedChunks.Clear();
     }
 
     private void editColor(GameObject chunk, Vector3 centerPoint)
     {
-        /*
-        Debug.Log("TextureSize: " + textureSize);
-        Debug.Log(centerPoint.ToString());
-        Debug.Log(Vector3.Scale(centerPoint, new Vector3(textureSize,textureSize,textureSize)).ToString());
-        Debug.Log("Magic Number:" + (textureSize * (tailleCookie / 100)));
-        Debug.Log("min: " + (int)(centerPoint.x - (textureSize * ((float)light.cookieSize / 100))) + "\tmax: " + (int)(centerPoint.x + (textureSize * ((float)light.cookieSize / 100))));
-        */
 
         List<Texture2D> modifiedTextures = new List<Texture2D>();
 
         int x = (int)Mathf.Round(centerPoint.x);
         int y = (int)Mathf.Round(centerPoint.z);
+        
+        int minY = (int)(y - (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100)))+1;
+        int maxY = (int)(y + (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100)));
 
-        //Debug.Log(centerPoint.ToString());
-        int minY = (int)(y - (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)))+1;
-        int maxY = (int)(y + (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)));
-
-        int minX = (int)(x - (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)))+1;
-        int maxX = (int)(x + (TEXTURE_SIZE * ((float)spotLigh_tLight.cookieSize / 100)));
+        int minX = (int)(x - (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100)))+1;
+        int maxX = (int)(x + (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100)));
 
         for (int i = minY; i <= maxY; i++)
         {
@@ -172,23 +174,21 @@ public class EditTerrain : MonoBehaviour {
                     int distY = Mathf.Abs(y - Mathf.Abs(i));
                     int distX = Mathf.Abs(x - Mathf.Abs(j));
                     float dist = Mathf.Sqrt(Mathf.Pow(distY, 2) + Mathf.Pow(distX, 2));
+
                     int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
                     int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
                     float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
-                    //Debug.Log("y: " + i + "\tx: " + j + " =>" + dist);
 
-
-                    //Debug.Log("R: " + 255 * dist / light.cookieSize);
                     Color c = new Color(dist / maxDist, (maxDist - dist) / maxDist, 0);
 
                     Texture2D texture = correctChunk.GetComponent<Renderer>().material.mainTexture as Texture2D;
-
                     texture.SetPixel(editX, editY, c);
 
                     if (!modifiedTextures.Contains(texture))
                     {
                         modifiedTextures.Add(texture);
                     }
+
                 }
             }
         }
@@ -209,10 +209,6 @@ public class EditTerrain : MonoBehaviour {
             if (rand > 1)
             {
                 c = new Color((float)153 / 255, (float)116 / 255, (float)73 / 255);
-            }
-            else
-            {
-                c = new Color((float)238 / 255, (float)229 / 255, (float)218 / 255);
             }
             */
         }
