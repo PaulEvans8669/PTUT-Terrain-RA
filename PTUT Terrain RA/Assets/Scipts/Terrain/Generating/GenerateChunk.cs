@@ -87,7 +87,7 @@ public class GenerateChunk : MonoBehaviour {
     {
 
         Texture2D texture = new Texture2D(TEXTURE_SIZE, TEXTURE_SIZE);
-        texture.filterMode = FilterMode.Point;
+        texture.filterMode = FilterMode.Bilinear;
         this.GetComponent<Renderer>().material.mainTexture = texture;
         this.GetComponent<Renderer>().material.SetTextureOffset("_MainTex", new Vector2((float)0.0001, (float)0.0001));
         texture = this.GetComponent<Renderer>().material.mainTexture as Texture2D;
@@ -103,6 +103,8 @@ public class GenerateChunk : MonoBehaviour {
                 texture.SetPixel(textureX, textureY, color);
             }
         }
+
         texture.Apply();
+        this.GetComponent<Renderer>().material.enableInstancing = true;
     }
 }
