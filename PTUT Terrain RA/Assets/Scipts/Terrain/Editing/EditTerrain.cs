@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class EditTerrain : MonoBehaviour {
@@ -14,8 +13,9 @@ public class EditTerrain : MonoBehaviour {
     private GameObject spotLight;
     private Light spotLight_Light;
     public int taillePinceau = 10;
+    public int FORCE  = 10;
 
-    
+
 
     Dictionary<GameObject, List<Vector3>> modifiedChunks = new Dictionary<GameObject, List<Vector3>>();
     Dictionary<GameObject, Texture2D> modifiedTextures = new Dictionary<GameObject, Texture2D>();
@@ -91,11 +91,11 @@ public class EditTerrain : MonoBehaviour {
         int y = (int)Mathf.Round(centerPoint.z);
 
         //Debug.Log(centerPoint.ToString());
-        int minY = (int)(y - (CHUNK_SIZE * ((float)spotLight_Light.cookieSize / 100))) + 1;
-        int maxY = (int)(y + (CHUNK_SIZE * ((float)spotLight_Light.cookieSize / 100)));
+        int minY = (int)(y - (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)))+1;
+        int maxY = (int)(y + (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)));
 
-        int minX = (int)(x - (CHUNK_SIZE * ((float)spotLight_Light.cookieSize / 100))) + 1;
-        int maxX = (int)(x + (CHUNK_SIZE * ((float)spotLight_Light.cookieSize / 100)));
+        int minX = (int)(x - (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)))+1;
+        int maxX = (int)(x + (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)));
 
         int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
         int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
@@ -111,9 +111,9 @@ public class EditTerrain : MonoBehaviour {
                 int editX = j;
 
                 GameObject correctChunk = getCorrectChunkForMesh(chunk, ref editY, ref editX);
-                if (correctChunk != null)
+                if(correctChunk != null)
                 {
-
+                    
                     int index = editY * (CHUNK_SIZE+1) + editX;
 
 
@@ -132,8 +132,8 @@ public class EditTerrain : MonoBehaviour {
                     List<Vector3> vertices = modifiedChunks[correctChunk];
                     
                     float height = vertices[index].y;
-                    vertices[index] = new Vector3(vertices[index].x, height + ((maxDist - dist) / maxDist), vertices[index].z);
-                        
+                    vertices[index] = new Vector3(vertices[index].x, (height + (float)FORCE/100 * ((maxDist - dist) / maxDist)), vertices[index].z);
+
                 }
             }
         }
@@ -155,11 +155,11 @@ public class EditTerrain : MonoBehaviour {
         int x = (int)Mathf.Round(centerPoint.x) * (TEXTURE_SIZE / CHUNK_SIZE);
         int y = (int)Mathf.Round(centerPoint.z) * (TEXTURE_SIZE / CHUNK_SIZE);
 
-        int minY = (int)((y - (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100)))+ 1);
-        int maxY = (int)((y + (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100))));
+        int minY = (int)((y - (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100))) + 1);
+        int maxY = (int)((y + (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100))));
 
-        int minX = (int)((x - (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100)))+1);
-        int maxX = (int)((x + (TEXTURE_SIZE * ((float)spotLight_Light.cookieSize / 100))));
+        int minX = (int)((x - (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100))) + 1);
+        int maxX = (int)((x + (TEXTURE_SIZE * ((float)taillePinceau/2 / 100))));
 
         int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
         int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
@@ -312,30 +312,30 @@ public class EditTerrain : MonoBehaviour {
     private GameObject getCorrectChunkForMesh(GameObject chunk, ref int y, ref int x)
     {
         //Debug.Log("CHUNK_SIZE: " + CHUNK_SIZE);
-        if (x >= CHUNK_SIZE && y >= CHUNK_SIZE)
+        if (x >= CHUNK_SIZE+1 && y >= CHUNK_SIZE+1)
         {
             //Debug.Log("TR");
-            x -= CHUNK_SIZE;
-            y -= CHUNK_SIZE;
+            x -= CHUNK_SIZE + 1;
+            y -= CHUNK_SIZE + 1;
             return getTopRightChunk(chunk);
         }
-        else if (x >= CHUNK_SIZE && y >= 0)
+        else if (x >= CHUNK_SIZE+1 && y >= 0)
         {
             //Debug.Log("R");
-            x -= CHUNK_SIZE;
+            x -= CHUNK_SIZE + 1;
             return getRightChunk(chunk);
         }
-        else if (x >= CHUNK_SIZE)
+        else if (x >= CHUNK_SIZE+1)
         {
             //Debug.Log("BR");
-            x -= CHUNK_SIZE;
-            y += CHUNK_SIZE;
+            x -= CHUNK_SIZE + 1;
+            y += CHUNK_SIZE + 1;
             return getBottomRightChunk(chunk);
         }
-        else if (x >= 0 && y >= CHUNK_SIZE)
+        else if (x >= 0 && y >= CHUNK_SIZE + 1)
         {
             //Debug.Log("T");
-            y -= CHUNK_SIZE;
+            y -= CHUNK_SIZE + 1;
             return getTopChunk(chunk);
         }
         else if (x >= 0 && y >= 0)
@@ -345,27 +345,27 @@ public class EditTerrain : MonoBehaviour {
         else if (x >= 0)
         {
             //Debug.Log("B");
-            y += CHUNK_SIZE;
+            y += CHUNK_SIZE + 1;
             return getBottomChunk(chunk);
         }
-        else if (y >= CHUNK_SIZE)
+        else if (y >= CHUNK_SIZE + 1)
         {
             //Debug.Log("TL");
-            x += CHUNK_SIZE;
-            y -= CHUNK_SIZE;
+            x += CHUNK_SIZE + 1;
+            y -= CHUNK_SIZE + 1;
             return getTopLeftChunk(chunk);
         }
         else if (y >= 0)
         {
             //Debug.Log("L");
-            x += CHUNK_SIZE;
+            x += CHUNK_SIZE + 1;
             return getLeftChunk(chunk);
         }
         else
         {
             //Debug.Log("BL");
-            x += CHUNK_SIZE;
-            y += CHUNK_SIZE;
+            x += CHUNK_SIZE + 1;
+            y += CHUNK_SIZE + 1;
             return getBottomLeftChunk(chunk);
         }
 
