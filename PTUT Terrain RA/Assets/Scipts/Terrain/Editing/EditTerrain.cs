@@ -6,7 +6,7 @@ public class EditTerrain : MonoBehaviour {
     private int CHUNK_SIZE;
     private int TEXTURE_SIZE;
     private int TERRAIN_SIZE;
-    
+
 
     private Camera mainCamera;
 
@@ -107,18 +107,17 @@ public class EditTerrain : MonoBehaviour {
             for (int j = minX; j <= maxX; j++)
             {
 
-                int editY = i;
+                int editZ = i;
                 int editX = j;
 
-                GameObject correctChunk = getCorrectChunkForMesh(chunk, ref editY, ref editX);
+                GameObject correctChunk = getCorrectChunkForMesh(chunk, ref editZ, ref editX);
                 if(correctChunk != null)
                 {
                     
-                    int index = editY * (CHUNK_SIZE+1) + editX;
+                    int index = editZ * (CHUNK_SIZE+1) + editX;
 
-
-                    int distZ = Mathf.Abs(y - Mathf.Abs(i));
-                    int distX = Mathf.Abs(x - Mathf.Abs(j));
+                    int distZ = Mathf.Abs(y - i);
+                    int distX = Mathf.Abs(x - j);
                     float dist = Mathf.Sqrt(Mathf.Pow(distZ, 2) + Mathf.Pow(distX, 2));
                     //Debug.Log("Dist: " + dist);
 
@@ -133,6 +132,13 @@ public class EditTerrain : MonoBehaviour {
                     
                     float height = vertices[index].y;
                     vertices[index] = new Vector3(vertices[index].x, (height + (float)FORCE/100 * ((maxDist - dist) / maxDist)), vertices[index].z);
+
+
+                    /*
+                     * Si on est au bord d'un chunk, mais qu'on ne le dépasse pas (!) ,
+                     * il faut aussi changer la hauteur du chunk a côté
+                     * sinon artefact de vide
+                     */
 
                 }
             }
@@ -177,8 +183,8 @@ public class EditTerrain : MonoBehaviour {
                 if (correctChunk != null)
                 {
 
-                    int distY = Mathf.Abs(y - Mathf.Abs(i));
-                    int distX = Mathf.Abs(x - Mathf.Abs(j));
+                    int distY = Mathf.Abs(y - i);
+                    int distX = Mathf.Abs(x - j);
                     float dist = Mathf.Sqrt(Mathf.Pow(distY, 2) + Mathf.Pow(distX, 2));
 
 
@@ -186,6 +192,7 @@ public class EditTerrain : MonoBehaviour {
                     {
                         modifiedTextures.Add(correctChunk, correctChunk.GetComponent<Renderer>().material.mainTexture as Texture2D);
                     }
+
 
                     Color c = new Color(dist / maxDist, (maxDist - dist) / maxDist, 0);
                     Texture2D texture = modifiedTextures[correctChunk];
