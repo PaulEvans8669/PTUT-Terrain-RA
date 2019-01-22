@@ -83,6 +83,24 @@ public class EditTerrain : MonoBehaviour {
                 generateNature(targetChunk, hitPoint);
                 //Debug.Log(targetChunk.name);
             }
+            else if (Input.GetKeyDown(KeyCode.S))
+            {
+                supprNature();
+            }
+        }
+    }
+
+    private void supprNature()
+    {
+        GameObject[] tab = GameObject.FindObjectsOfType<GameObject>();
+        for (int i = 0; i < tab.Length; i++)
+        {
+            if (tab[i].name == "vegetation")
+            {
+
+                Destroy(tab[i]);
+
+            }
         }
     }
 
@@ -110,7 +128,7 @@ public class EditTerrain : MonoBehaviour {
         //Debug.Log("MinX = " + minX + " || maxX = " + maxX);
 
         supprModels(minX, minY, maxX, maxY);
-        Debug.Log("suppr");
+        //Debug.Log("suppr");
         for(int i = minY; i < maxY; i++)
         {
             //Debug.Log(i);
@@ -142,26 +160,45 @@ public class EditTerrain : MonoBehaviour {
                     //Debug.Log(i+"        "+(-(i - CHUNK_SIZE)));
                     GameObject clone = Instantiate(model, new Vector3(j, chunkVertices[index].y, -(i-CHUNK_SIZE)), Quaternion.identity) as GameObject;
                     clone.name = "vegetation";
+                    clone.transform.parent = correctChunk.transform;
                 }
             }           
         }
 
     }
 
+    private float calculHauteur()
+    {
+        return 0;
+    }
+
+    private void OnDestroy()
+    {
+        Debug.Log("je detruit une entité");
+    }
+
     private void supprModels(int minX, int minY, int maxX, int maxY)
     {
-        Debug.Log("debut suppr");
+        //Debug.Log("debut suppr");
+        Debug.Log(minX % 32 + "<x<"+ maxX % 32 + " || "+ minY % 32 + "<y<"+ maxY % 32);
         GameObject[]tab = GameObject.FindObjectsOfType<GameObject>();
         for (int i = 0; i < tab.Length; i++)
         {
             float x = tab[i].transform.localPosition.x;
-            float y = tab[i].transform.localPosition.y;
-            Debug.Log("deboguage" + tab[i].name);
-            if (tab[i].name == "vegetation" && x >= minX && x <= maxX && y >= minY && y <= maxY)
-            {
-                Destroy(tab[i]);
-                Debug.Log("Suppression effectuée");
-            }
+            float y = tab[i].transform.localPosition.z;
+
+            if (tab[i].name == "vegetation") {
+
+                Debug.Log("deboguage : " + tab[i].name + ", x:" + x + ", z:" + y);
+
+                if (x >= minX % 32 && x <= maxX % 32 && y >= maxY % 32 && y <= minY % 32)
+                {
+
+                    Destroy(tab[i]);
+                    Debug.Log("Suppression effectuée");
+
+                }
+            }  
         }
     }
 
