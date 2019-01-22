@@ -43,10 +43,6 @@ public class GenerateTerrain : MonoBehaviour {
         arrDown = GameObject.Find("Terrain").transform.GetChild(4).gameObject;
         arrDown.transform.position = new Vector3(80.1f, 0f, -105.5f);
 
-        texture = (Texture2D)Resources.Load("crafting_table_front");
-        cubeMenu = GameObject.Find("Camera").transform.GetChild(0).gameObject;
-        cubeMenu.GetComponent<Renderer>().material.mainTexture = texture;
-
         for (int z = 0; z < TERRAIN_SIZE; z++) {
             for (int x = 0; x < TERRAIN_SIZE; x++)
             {

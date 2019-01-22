@@ -17,7 +17,7 @@ public class ControlCamera : MonoBehaviour {
         terrainObjectSize = CHUNK_SIZE * TERRAIN_SIZE;
 
         mainCamera = Camera.main;
-        mainCamera.transform.SetPositionAndRotation(new Vector3(terrainObjectSize / 2, 20 + 15*TERRAIN_SIZE , -terrainObjectSize + CHUNK_SIZE -15), Quaternion.Euler(45,0,0));
+        mainCamera.transform.SetPositionAndRotation(new Vector3(-30.376f, 108.298f, -116.26f), Quaternion.Euler(45.955f, 53.065f, 4.958f));
 
     }
 	

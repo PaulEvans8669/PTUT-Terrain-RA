@@ -9,7 +9,7 @@ public class EditTerrain : MonoBehaviour {
 
 
     private Camera mainCamera;
-
+    //private Dropdown menu;
     private GameObject spotLight;
     private Light spotLight_Light;
     public int taillePinceau = 10;
@@ -29,6 +29,7 @@ public class EditTerrain : MonoBehaviour {
         mainCamera = Camera.main;
         spotLight = GameObject.Find("Spot Light");
         spotLight_Light = spotLight.GetComponent<Light>();
+        //menu = new Dropdown();
 
     }
 	
@@ -64,13 +65,33 @@ public class EditTerrain : MonoBehaviour {
             coordSpotLight.y += 100;
             spotLight.transform.position = coordSpotLight;
 
-            if (Input.GetMouseButton(0))
+           /* if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("Camera").transform.GetChild(0).gameObject))
             {
 
-                GameObject targetChunk = collider.gameObject;
-                editColor(targetChunk, coordHitMesh);
-                editHeights(targetChunk, coordHitMesh);
-                recalculateColliders();
+                if (menu.getDropped())
+                {
+                    menu.close();
+                }else
+                {
+                    menu.open();
+                }
+
+
+            }*/
+
+            GameObject targetChunk = collider.gameObject;
+
+            if (targetChunk.name.Contains("Chunk"))
+            {
+
+                if (Input.GetMouseButton(0))
+                {
+
+                    editColor(targetChunk, coordHitMesh);
+                    editHeights(targetChunk, coordHitMesh);
+                    recalculateColliders();
+
+                }
 
             }
 
