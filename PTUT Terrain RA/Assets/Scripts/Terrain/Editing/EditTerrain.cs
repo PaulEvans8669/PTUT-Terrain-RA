@@ -84,12 +84,11 @@ public class EditTerrain : MonoBehaviour
 
                     editColor(targetChunk, coordHitMesh);
                     editHeights(targetChunk, coordHitMesh);
-                    recalculateColliders();
 
                 }
                 else if (Input.GetMouseButton(1))
                 {
-                    generateNature(targetChunk, hitPoint);
+                    generateNature(targetChunk, coordHitMesh);
                     //Debug.Log(targetChunk.name);
                 }
             }
@@ -105,7 +104,7 @@ public class EditTerrain : MonoBehaviour
         //Debug.Log(chunk.name);
 
         int x = (int)Mathf.Round(centerPoint.x);
-        int y = -(int)Mathf.Round(centerPoint.z)+CHUNK_SIZE;
+        int y = (int)Mathf.Round(centerPoint.z);
         //Debug.Log(x + " || " + y);
         //Debug.Log("");
 
@@ -119,8 +118,8 @@ public class EditTerrain : MonoBehaviour
         //Debug.Log("");
         //Debug.Log("MinX = " + minX + " || maxX = " + maxX);
 
-        supprModels(minX, minY, maxX, maxY);
-        Debug.Log("suppr");
+        //supprModels(minX, minY, maxX, maxY);
+        //Debug.Log("suppr");
         for(int i = minY; i < maxY; i++)
         {
             //Debug.Log(i);
@@ -131,28 +130,27 @@ public class EditTerrain : MonoBehaviour
 
                 int numChunk = int.Parse(chunk.name.Split(' ')[1]);
 
-                int xChunk = numChunk % 4;
-                int yChunk = numChunk / 4;
-                int posX = j % CHUNK_SIZE;
-                int posY = i % CHUNK_SIZE;
+                int editY = i;
+                int editX = j;
+                GameObject correctChunk = getCorrectChunkForMesh(chunk, ref editY, ref editX);
 
-                int index = posY * (CHUNK_SIZE + 1) + posX;
-                //Debug.Log("ok");
-                GameObject correctChunk = getCorrectChunkForMesh(chunk, ref posY, ref posX);
-                //KO
-                List<Vector3> chunkVertices = new List<Vector3>();
-                //KO
-                correctChunk.GetComponent<MeshFilter>().mesh.GetVertices(chunkVertices);
-                //modifiedChunks.Add(correctChunk, chunkVertices);
-                //List<Vector3> vertices = modifiedChunks[correctChunk];
-
-                //KO
-                if (rand < 0.5 && j >= 0 && j <= 4*CHUNK_SIZE && i >= 0 && i <= 4 * CHUNK_SIZE)
+                if (correctChunk != null)
                 {
-                    //Debug.Log(i+"        "+(-(i - CHUNK_SIZE)));
-                    GameObject clone = Instantiate(model, new Vector3(j, chunkVertices[index].y, -(i-CHUNK_SIZE)), Quaternion.identity) as GameObject;
-                    clone.transform.parent = correctChunk.transform;
-                    clone.name = "vegetation";
+                    int index = editY * (CHUNK_SIZE + 1) + editX;
+
+                    List<Vector3> chunkVertices = new List<Vector3>();
+
+                    correctChunk.GetComponent<MeshFilter>().mesh.GetVertices(chunkVertices);
+
+                    if (rand < 0.5 && editX >= 0 && editX <= 4 * CHUNK_SIZE && editY >= 0 && editY <= 4 * CHUNK_SIZE)
+                    {
+                        //Debug.Log(i+"        "+(-(i - CHUNK_SIZE)));
+                        float height = chunkVertices[index].y;
+                        Debug.Log("Height: " + height);
+                        GameObject clone = Instantiate(model, correctChunk.transform.position + new Vector3(editX, height, editY), Quaternion.identity) as GameObject;
+                        clone.transform.parent = correctChunk.transform;
+                        clone.name = "vegetation";
+                    }
                 }
             }           
         }
@@ -246,7 +244,29 @@ public class EditTerrain : MonoBehaviour
                 }
             }
         }
+        recalculateColliders();
+        recalculateNature();
         recalculateAdjacentHeights(chunk);
+        modifiedChunks.Clear();
+
+    }
+
+    private void recalculateNature()
+    {
+        foreach (KeyValuePair<GameObject, List<Vector3>> modifiedChunk in modifiedChunks)
+        {
+            GameObject chunk = modifiedChunk.Key; 
+            List<Vector3> listHeights = modifiedChunk.Value;
+            foreach (Transform child in chunk.transform)
+            {
+                float x = child.transform.localPosition.x;
+                float z = child.transform.localPosition.z;
+                int index = (int)z * (CHUNK_SIZE + 1) + (int)x;
+                float height = listHeights[index].y;
+                child.transform.localPosition = new Vector3(x, height, z);
+            }
+        }
+
     }
 
     private void recalculateAdjacentHeights(GameObject chunk)
@@ -364,7 +384,6 @@ public class EditTerrain : MonoBehaviour
             modifiedChunk.Key.GetComponent<MeshFilter>().mesh.SetVertices(modifiedChunk.Value);
             modifiedChunk.Key.GetComponent<MeshCollider>().sharedMesh = modifiedChunk.Key.GetComponent<MeshFilter>().mesh;
         }
-        modifiedChunks.Clear();
     }
 
     private void editColor(GameObject chunk, Vector3 centerPoint)
