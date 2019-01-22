@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class EditTerrain : MonoBehaviour {
+public class EditTerrain : MonoBehaviour
+{
 
     private int CHUNK_SIZE;
     private int TEXTURE_SIZE;
     private int TERRAIN_SIZE;
     private Texture2D myTexture;
 
+    private List<GameObject> chunkList;
 
     private Camera mainCamera;
 
     private GameObject spotLight;
     private Light spotLight_Light;
     public int taillePinceau = 10;
+
     public int FORCE  = 10;
     public Texture2D texture;
     public GameObject model;
@@ -25,10 +27,13 @@ public class EditTerrain : MonoBehaviour {
     Dictionary<GameObject, Texture2D> modifiedTextures = new Dictionary<GameObject, Texture2D>();
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         CHUNK_SIZE = this.gameObject.GetComponent<GenerateTerrain>().getChunkSize();
         TEXTURE_SIZE = this.gameObject.GetComponent<GenerateTerrain>().getTextureSize();
         TERRAIN_SIZE = this.gameObject.GetComponent<GenerateTerrain>().getTerrainSize();
+
+        chunkList = this.gameObject.GetComponent<GenerateTerrain>().getChunkList();
 
         mainCamera = Camera.main;
         spotLight = GameObject.Find("Spot Light");
@@ -38,7 +43,9 @@ public class EditTerrain : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
+
+    void Update()
+    {
         if (taillePinceau < 1)
         {
             taillePinceau = 1;
@@ -172,14 +179,14 @@ public class EditTerrain : MonoBehaviour {
         int y = (int)Mathf.Round(centerPoint.z);
 
         //Debug.Log(centerPoint.ToString());
-        int minY = (int)(y - (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)))+1;
+        int minY = (int)(y - (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)));
         int maxY = (int)(y + (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)));
 
-        int minX = (int)(x - (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)))+1;
+        int minX = (int)(x - (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)));
         int maxX = (int)(x + (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)));
 
-        int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
-        int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
+        int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY))+1;
+        int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX))+1;
         float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
 
         //Debug.Log("minY: " + minY + "maxY: " + maxY + "minX: " + minX + "maxX: " + maxX);
@@ -192,13 +199,24 @@ public class EditTerrain : MonoBehaviour {
                 int editX = j;
 
                 GameObject correctChunk = getCorrectChunkForMesh(chunk, ref editZ, ref editX);
-                if(correctChunk != null)
+                if (correctChunk != null)
                 {
-                    
-                    int index = editZ * (CHUNK_SIZE+1) + editX;
+
+                    int index = editZ * (CHUNK_SIZE + 1) + editX;
 
                     int distZ = Mathf.Abs(y - i);
                     int distX = Mathf.Abs(x - j);
+
+                    if(editZ != i)
+                    {
+                        distZ--;
+                    }
+                    if (editX != j)
+                    {
+                        distX--;
+                    }
+
+
                     float dist = Mathf.Sqrt(Mathf.Pow(distZ, 2) + Mathf.Pow(distX, 2));
                     //Debug.Log("Dist: " + dist);
 
@@ -210,9 +228,9 @@ public class EditTerrain : MonoBehaviour {
                         modifiedChunks.Add(correctChunk, chunkVertices);
                     }
                     List<Vector3> vertices = modifiedChunks[correctChunk];
-                    
+
                     float height = vertices[index].y;
-                    vertices[index] = new Vector3(vertices[index].x, (height + (float)FORCE/100 * ((maxDist - dist) / maxDist)), vertices[index].z);
+                    vertices[index] = new Vector3(vertices[index].x, (height + (float)FORCE / 100 * ((maxDist - dist) / maxDist)), vertices[index].z);
 
 
                     /*
@@ -224,7 +242,116 @@ public class EditTerrain : MonoBehaviour {
                 }
             }
         }
+        recalculateAdjacentHeights(chunk);
     }
+
+    private void recalculateAdjacentHeights(GameObject chunk)
+    {
+        List<Vector3> centerChunkHeights = new List<Vector3>();
+        chunk.GetComponent<MeshFilter>().mesh.GetVertices(centerChunkHeights);
+
+        //Bord inférieur
+        GameObject bottomChunk = getBottomChunk(chunk);
+        if (bottomChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            bottomChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            for (int i = 0; i <= CHUNK_SIZE; i++)
+            {
+                Vector3 vertice = adjacentChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE + i];
+                adjacentChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE + i] = new Vector3(vertice.x, centerChunkHeights[i].y, vertice.z);
+            }
+            bottomChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Bord supérieur
+        GameObject topchunk = getTopChunk(chunk);
+        if (topchunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            topchunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            for (int i = 0; i <= CHUNK_SIZE; i++)
+            {
+                Vector3 vertice = adjacentChunkHeights[i];
+                adjacentChunkHeights[i] = new Vector3(vertice.x, centerChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE + i].y, vertice.z);
+            }
+            topchunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Bord gauche
+        GameObject leftchunk = getLeftChunk(chunk);
+        if (leftchunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            leftchunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            for (int i = 0; i <= (CHUNK_SIZE + 1) * CHUNK_SIZE; i += CHUNK_SIZE + 1)
+            {
+                Vector3 vertice = adjacentChunkHeights[i + CHUNK_SIZE];
+                adjacentChunkHeights[i + CHUNK_SIZE] = new Vector3(vertice.x, centerChunkHeights[i].y, vertice.z);
+            }
+            leftchunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+
+        //Bord Droit
+        GameObject rightchunk = getRightChunk(chunk);
+        if (rightchunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            rightchunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            for (int i = 0; i <= (CHUNK_SIZE + 1) * CHUNK_SIZE; i += CHUNK_SIZE + 1)
+            {
+                Vector3 vertice = adjacentChunkHeights[i];
+                adjacentChunkHeights[i] = new Vector3(vertice.x, centerChunkHeights[i + CHUNK_SIZE].y, vertice.z);
+            }
+            rightchunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Coin inférieur gauche
+        GameObject bottomLeftChunk = getBottomLeftChunk(chunk);
+        if (bottomLeftChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            bottomLeftChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            Vector3 vertice = adjacentChunkHeights[(CHUNK_SIZE + 1) * (CHUNK_SIZE + 1) - 1];
+            adjacentChunkHeights[(CHUNK_SIZE+1) * (CHUNK_SIZE+1)-1] = new Vector3(vertice.x, centerChunkHeights[0].y, vertice.z);
+            bottomLeftChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Coin inférieur droit
+        GameObject bottomRightChunk = getBottomRightChunk(chunk);
+        if (bottomRightChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            bottomRightChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            Vector3 vertice = adjacentChunkHeights[(CHUNK_SIZE + 1) *CHUNK_SIZE];
+            adjacentChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE] = new Vector3(vertice.x, centerChunkHeights[CHUNK_SIZE].y, vertice.z);
+            bottomRightChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Coin supérieur gauche
+        GameObject topLeftChunk = getTopRightChunk(chunk);
+        if (topLeftChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            topLeftChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            Vector3 vertice = adjacentChunkHeights[0];
+            adjacentChunkHeights[0] = new Vector3(vertice.x, centerChunkHeights[(CHUNK_SIZE + 1) * (CHUNK_SIZE + 1) - 1].y, vertice.z);
+            topLeftChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Coin supérieur droit
+        GameObject topRightChunk = getTopLeftChunk(chunk);
+        if (topRightChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            topRightChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            Vector3 vertice = adjacentChunkHeights[CHUNK_SIZE];
+            adjacentChunkHeights[CHUNK_SIZE] = new Vector3(vertice.x, centerChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE].y, vertice.z);
+            topRightChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+    }
+    
 
     private void recalculateColliders()
     {
@@ -242,11 +369,18 @@ public class EditTerrain : MonoBehaviour {
         int x = (int)Mathf.Round(centerPoint.x) * (TEXTURE_SIZE / CHUNK_SIZE);
         int y = (int)Mathf.Round(centerPoint.z) * (TEXTURE_SIZE / CHUNK_SIZE);
 
-        int minY = (int)((y - (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100))) + 1);
-        int maxY = (int)((y + (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100))));
+        int minY = (int)((y - (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100))));
+        int maxY = (int)((y + (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100)))) ;
 
-        int minX = (int)((x - (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100))) + 1);
-        int maxX = (int)((x + (TEXTURE_SIZE * ((float)taillePinceau/2 / 100))));
+        int minX = (int)((x - (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100)))) - 1;
+        int maxX = (int)((x + (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100)))) + 1;
+
+
+        /*
+        int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
+        int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
+        float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
+        */
 
         for (int i = minY; i <= maxY; i++)
         {
@@ -259,10 +393,11 @@ public class EditTerrain : MonoBehaviour {
                 GameObject correctChunk = getCorrectChunkForTexture(chunk, ref editY, ref editX);
                 if (correctChunk != null)
                 {
-
+                    /*
                     int distY = Mathf.Abs(y - i);
                     int distX = Mathf.Abs(x - j);
                     float dist = Mathf.Sqrt(Mathf.Pow(distY, 2) + Mathf.Pow(distX, 2));
+                    */
 
 
                     if (!modifiedTextures.ContainsKey(correctChunk))
@@ -270,7 +405,7 @@ public class EditTerrain : MonoBehaviour {
                         modifiedTextures.Add(correctChunk, correctChunk.GetComponent<Renderer>().material.mainTexture as Texture2D);
                     }
 
-
+                    
                     //Color c = new Color(dist / maxDist, (maxDist - dist) / maxDist, 0);
                     Texture2D textureChunk = modifiedTextures[correctChunk];
                     //Debug.Log("pos X = " + editX + " ||  pos Y = " + editY);
@@ -289,7 +424,7 @@ public class EditTerrain : MonoBehaviour {
     private Color getColorForHeight(float height)
     {
         Color c = new Color((float)238 / 255, (float)229 / 255, (float)218 / 255);
-        if(9<= height && height < 12)
+        if (9 <= height && height < 12)
         {
             /*
             int rand = Random.Range(0, 3);
@@ -299,7 +434,7 @@ public class EditTerrain : MonoBehaviour {
             }
             */
         }
-        else if (5<= height && height < 9)
+        else if (5 <= height && height < 9)
         {
             c = new Color((float)153 / 255, (float)116 / 255, (float)73 / 255);
         }
@@ -314,9 +449,9 @@ public class EditTerrain : MonoBehaviour {
     {
         int id = int.Parse(chunk.name.Split(' ')[1]);
         int idChunkOnTheLeft = id - 1;
-        if (idChunkOnTheLeft >= 0 && (int)(idChunkOnTheLeft/TERRAIN_SIZE) == (int)(id/TERRAIN_SIZE))
+        if (idChunkOnTheLeft >= 0 && (int)(idChunkOnTheLeft / TERRAIN_SIZE) == (int)(id / TERRAIN_SIZE))
         {
-            return GameObject.Find("Chunk " + idChunkOnTheLeft);
+            return chunkList[idChunkOnTheLeft];
         }
         return null;
     }
@@ -325,9 +460,9 @@ public class EditTerrain : MonoBehaviour {
     {
         int id = int.Parse(chunk.name.Split(' ')[1]);
         int idChunkOnTheRight = id + 1;
-        if (idChunkOnTheRight < (1+id/TERRAIN_SIZE)*TERRAIN_SIZE)
+        if (idChunkOnTheRight < (1 + id / TERRAIN_SIZE) * TERRAIN_SIZE)
         {
-            return GameObject.Find("Chunk " + idChunkOnTheRight);
+            return chunkList[idChunkOnTheRight];
         }
         return null;
     }
@@ -338,7 +473,7 @@ public class EditTerrain : MonoBehaviour {
         int idChunkAbove = id - TERRAIN_SIZE;
         if (idChunkAbove >= 0)
         {
-            return GameObject.Find("Chunk " + idChunkAbove);
+            return chunkList[idChunkAbove];
         }
         return null;
     }
@@ -347,9 +482,9 @@ public class EditTerrain : MonoBehaviour {
     {
         int id = int.Parse(chunk.name.Split(' ')[1]);
         int idChunkUnder = id + TERRAIN_SIZE;
-        if (idChunkUnder < TERRAIN_SIZE*TERRAIN_SIZE)
+        if (idChunkUnder < TERRAIN_SIZE * TERRAIN_SIZE)
         {
-            return GameObject.Find("Chunk " + idChunkUnder);
+            return chunkList[idChunkUnder];
         }
         return null;
     }
@@ -357,7 +492,7 @@ public class EditTerrain : MonoBehaviour {
     private GameObject getTopLeftChunk(GameObject chunk)
     {
         GameObject topChunk = getTopChunk(chunk);
-        if(topChunk != null)
+        if (topChunk != null)
         {
             return getLeftChunk(topChunk);
         }
@@ -397,20 +532,20 @@ public class EditTerrain : MonoBehaviour {
     private GameObject getCorrectChunkForMesh(GameObject chunk, ref int y, ref int x)
     {
         //Debug.Log("CHUNK_SIZE: " + CHUNK_SIZE);
-        if (x >= CHUNK_SIZE+1 && y >= CHUNK_SIZE+1)
+        if (x >= CHUNK_SIZE + 1 && y >= CHUNK_SIZE + 1)
         {
             //Debug.Log("TR");
             x -= CHUNK_SIZE + 1;
             y -= CHUNK_SIZE + 1;
             return getTopRightChunk(chunk);
         }
-        else if (x >= CHUNK_SIZE+1 && y >= 0)
+        else if (x >= CHUNK_SIZE + 1 && y >= 0)
         {
             //Debug.Log("R");
             x -= CHUNK_SIZE + 1;
             return getRightChunk(chunk);
         }
-        else if (x >= CHUNK_SIZE+1)
+        else if (x >= CHUNK_SIZE + 1)
         {
             //Debug.Log("BR");
             x -= CHUNK_SIZE + 1;

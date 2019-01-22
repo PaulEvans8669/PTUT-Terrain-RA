@@ -10,6 +10,8 @@ public class GenerateTerrain : MonoBehaviour {
     private GameObject modelChunk;
     private GameObject arrLeft, arrRight, arrUp, arrDown, cubeMenu;
     private Texture2D texture;
+
+    private List<GameObject> chunkList; //Sorted by id
     
     public int getChunkSize()
     {
@@ -25,10 +27,17 @@ public class GenerateTerrain : MonoBehaviour {
     {
         return TEXTURE_SIZE;
     }
+
+    public List<GameObject> getChunkList()
+    {
+        return chunkList;
+    }
+
 	// Use this for initialization
 	void Start () {
         TEXTURE_SIZE = 256;
         modelChunk = GameObject.Find("ModelChunk");
+        chunkList = new List<GameObject>();
 
         arrLeft = GameObject.Find("Terrain").transform.GetChild(1).gameObject;
         arrLeft.transform.position = new Vector3(-10f, 0f, -48.1f);
@@ -58,11 +67,10 @@ public class GenerateTerrain : MonoBehaviour {
 
     private void addNewChunk(int z, int x)
     {
-        
-
         GameObject newChunk = Instantiate(modelChunk, new Vector3(x * CHUNK_SIZE, 0, -z * CHUNK_SIZE), Quaternion.identity, this.gameObject.transform);
         newChunk.name = "Chunk " + (z * TERRAIN_SIZE + x);
         newChunk.AddComponent<GenerateChunk>();
+        chunkList.Add(newChunk);
     }
 	
 	// Update is called once per frame
