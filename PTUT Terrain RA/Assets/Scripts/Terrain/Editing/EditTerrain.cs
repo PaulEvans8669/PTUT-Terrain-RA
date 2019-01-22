@@ -8,6 +8,7 @@ public class EditTerrain : MonoBehaviour
     private int TEXTURE_SIZE;
     private int TERRAIN_SIZE;
 
+    private List<GameObject> chunkList;
 
     private Camera mainCamera;
 
@@ -15,7 +16,7 @@ public class EditTerrain : MonoBehaviour
     private Light spotLight_Light;
     public int taillePinceau = 10;
     public int FORCE = 10;
-
+    
 
 
     Dictionary<GameObject, List<Vector3>> modifiedChunks = new Dictionary<GameObject, List<Vector3>>();
@@ -27,6 +28,8 @@ public class EditTerrain : MonoBehaviour
         CHUNK_SIZE = this.gameObject.GetComponent<GenerateTerrain>().getChunkSize();
         TEXTURE_SIZE = this.gameObject.GetComponent<GenerateTerrain>().getTextureSize();
         TERRAIN_SIZE = this.gameObject.GetComponent<GenerateTerrain>().getTerrainSize();
+
+        chunkList = this.gameObject.GetComponent<GenerateTerrain>().getChunkList();
 
         mainCamera = Camera.main;
         spotLight = GameObject.Find("Spot Light");
@@ -157,8 +160,115 @@ public class EditTerrain : MonoBehaviour
                 }
             }
         }
+        recalculateAdjacentHeights(chunk);
     }
 
+    private void recalculateAdjacentHeights(GameObject chunk)
+    {
+        List<Vector3> centerChunkHeights = new List<Vector3>();
+        chunk.GetComponent<MeshFilter>().mesh.GetVertices(centerChunkHeights);
+
+        //Bord inférieur
+        GameObject bottomChunk = getBottomChunk(chunk);
+        if (bottomChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            bottomChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            for (int i = 0; i <= CHUNK_SIZE; i++)
+            {
+                Vector3 vertice = adjacentChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE + i];
+                adjacentChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE + i] = new Vector3(vertice.x, centerChunkHeights[i].y, vertice.z);
+            }
+            bottomChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Bord supérieur
+        GameObject topchunk = getTopChunk(chunk);
+        if (topchunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            topchunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            for (int i = 0; i <= CHUNK_SIZE; i++)
+            {
+                Vector3 vertice = adjacentChunkHeights[i];
+                adjacentChunkHeights[i] = new Vector3(vertice.x, centerChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE + i].y, vertice.z);
+            }
+            topchunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Bord gauche
+        GameObject leftchunk = getLeftChunk(chunk);
+        if (leftchunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            leftchunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            for (int i = 0; i <= (CHUNK_SIZE + 1) * CHUNK_SIZE; i += CHUNK_SIZE + 1)
+            {
+                Vector3 vertice = adjacentChunkHeights[i + CHUNK_SIZE];
+                adjacentChunkHeights[i + CHUNK_SIZE] = new Vector3(vertice.x, centerChunkHeights[i].y, vertice.z);
+            }
+            leftchunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+
+        //Bord Droit
+        GameObject rightchunk = getRightChunk(chunk);
+        if (rightchunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            rightchunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            for (int i = 0; i <= (CHUNK_SIZE + 1) * CHUNK_SIZE; i += CHUNK_SIZE + 1)
+            {
+                Vector3 vertice = adjacentChunkHeights[i];
+                adjacentChunkHeights[i] = new Vector3(vertice.x, centerChunkHeights[i + CHUNK_SIZE].y, vertice.z);
+            }
+            rightchunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Coin inférieur gauche
+        GameObject bottomLeftChunk = getBottomLeftChunk(chunk);
+        if (bottomLeftChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            bottomLeftChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            Vector3 vertice = adjacentChunkHeights[(CHUNK_SIZE + 1) * (CHUNK_SIZE + 1) - 1];
+            adjacentChunkHeights[(CHUNK_SIZE+1) * (CHUNK_SIZE+1)-1] = new Vector3(vertice.x, centerChunkHeights[0].y, vertice.z);
+            bottomLeftChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Coin inférieur droit
+        GameObject bottomRightChunk = getBottomRightChunk(chunk);
+        if (bottomRightChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            bottomRightChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            Vector3 vertice = adjacentChunkHeights[(CHUNK_SIZE + 1) *CHUNK_SIZE];
+            adjacentChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE] = new Vector3(vertice.x, centerChunkHeights[CHUNK_SIZE].y, vertice.z);
+            bottomRightChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Coin supérieur gauche
+        GameObject topLeftChunk = getTopRightChunk(chunk);
+        if (topLeftChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            topLeftChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            Vector3 vertice = adjacentChunkHeights[0];
+            adjacentChunkHeights[0] = new Vector3(vertice.x, centerChunkHeights[(CHUNK_SIZE + 1) * (CHUNK_SIZE + 1) - 1].y, vertice.z);
+            topLeftChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+
+        //Coin supérieur droit
+        GameObject topRightChunk = getTopLeftChunk(chunk);
+        if (topRightChunk != null)
+        {
+            List<Vector3> adjacentChunkHeights = new List<Vector3>();
+            topRightChunk.GetComponent<MeshFilter>().mesh.GetVertices(adjacentChunkHeights);
+            Vector3 vertice = adjacentChunkHeights[CHUNK_SIZE];
+            adjacentChunkHeights[CHUNK_SIZE] = new Vector3(vertice.x, centerChunkHeights[(CHUNK_SIZE + 1) * CHUNK_SIZE].y, vertice.z);
+            topRightChunk.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
+        }
+    }
     
 
     private void recalculateColliders()
@@ -183,9 +293,11 @@ public class EditTerrain : MonoBehaviour
         int minX = (int)((x - (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100)))) - 1;
         int maxX = (int)((x + (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100)))) + 1;
 
+        /*
         int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
         int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
         float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
+        */
 
         for (int i = minY; i <= maxY; i++)
         {
@@ -198,10 +310,11 @@ public class EditTerrain : MonoBehaviour
                 GameObject correctChunk = getCorrectChunkForTexture(chunk, ref editY, ref editX);
                 if (correctChunk != null)
                 {
-
+                    /*
                     int distY = Mathf.Abs(y - i);
                     int distX = Mathf.Abs(x - j);
                     float dist = Mathf.Sqrt(Mathf.Pow(distY, 2) + Mathf.Pow(distX, 2));
+                    */
 
 
                     if (!modifiedTextures.ContainsKey(correctChunk))
@@ -210,7 +323,7 @@ public class EditTerrain : MonoBehaviour
                     }
 
 
-                    Color c = new Color(dist / maxDist, (maxDist - dist) / maxDist, 0);
+                    Color c = Color.blue;
                     Texture2D texture = modifiedTextures[correctChunk];
                     texture.SetPixel(editX, editY, c);
 
@@ -254,7 +367,7 @@ public class EditTerrain : MonoBehaviour
         int idChunkOnTheLeft = id - 1;
         if (idChunkOnTheLeft >= 0 && (int)(idChunkOnTheLeft / TERRAIN_SIZE) == (int)(id / TERRAIN_SIZE))
         {
-            return GameObject.Find("Chunk " + idChunkOnTheLeft);
+            return chunkList[idChunkOnTheLeft];
         }
         return null;
     }
@@ -265,7 +378,7 @@ public class EditTerrain : MonoBehaviour
         int idChunkOnTheRight = id + 1;
         if (idChunkOnTheRight < (1 + id / TERRAIN_SIZE) * TERRAIN_SIZE)
         {
-            return GameObject.Find("Chunk " + idChunkOnTheRight);
+            return chunkList[idChunkOnTheRight];
         }
         return null;
     }
@@ -276,7 +389,7 @@ public class EditTerrain : MonoBehaviour
         int idChunkAbove = id - TERRAIN_SIZE;
         if (idChunkAbove >= 0)
         {
-            return GameObject.Find("Chunk " + idChunkAbove);
+            return chunkList[idChunkAbove];
         }
         return null;
     }
@@ -287,7 +400,7 @@ public class EditTerrain : MonoBehaviour
         int idChunkUnder = id + TERRAIN_SIZE;
         if (idChunkUnder < TERRAIN_SIZE * TERRAIN_SIZE)
         {
-            return GameObject.Find("Chunk " + idChunkUnder);
+            return chunkList[idChunkUnder];
         }
         return null;
     }
