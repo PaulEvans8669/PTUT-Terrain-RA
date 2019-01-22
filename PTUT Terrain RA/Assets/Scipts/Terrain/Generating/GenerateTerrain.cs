@@ -25,7 +25,7 @@ public class GenerateTerrain : MonoBehaviour {
     }
 	// Use this for initialization
 	void Start () {
-        TEXTURE_SIZE = 128;
+        TEXTURE_SIZE = 256;
         modelChunk = GameObject.Find("ModelChunk");
 
         for (int z = 0; z < TERRAIN_SIZE; z++) {

@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EditTerrain : MonoBehaviour {
 
     private int CHUNK_SIZE;
     private int TEXTURE_SIZE;
     private int TERRAIN_SIZE;
+    private Texture2D myTexture;
 
 
     private Camera mainCamera;
@@ -14,7 +17,8 @@ public class EditTerrain : MonoBehaviour {
     private Light spotLight_Light;
     public int taillePinceau = 10;
     public int FORCE  = 10;
-
+    public Texture2D texture;
+    public GameObject model;
 
 
     Dictionary<GameObject, List<Vector3>> modifiedChunks = new Dictionary<GameObject, List<Vector3>>();
@@ -29,16 +33,17 @@ public class EditTerrain : MonoBehaviour {
         mainCamera = Camera.main;
         spotLight = GameObject.Find("Spot Light");
         spotLight_Light = spotLight.GetComponent<Light>();
+        //myTexture = (Texture2D)Resources.Load("/Assets/Ground_textures_pack/Ground_weeds/diffuse.tga");
 
     }
-	
-	// Update is called once per frame
-	void Update () {
-        if (taillePinceau < 1 )
+
+    // Update is called once per frame
+    void Update() {
+        if (taillePinceau < 1)
         {
             taillePinceau = 1;
         }
-        else if(taillePinceau > 100)
+        else if (taillePinceau > 100)
         {
             taillePinceau = 100;
         }
@@ -63,29 +68,105 @@ public class EditTerrain : MonoBehaviour {
             Vector3 coordSpotLight = hitPoint;
             coordSpotLight.y += 100;
             spotLight.transform.position = coordSpotLight;
-
+            GameObject targetChunk = collider.gameObject;
             if (Input.GetMouseButton(0))
             {
 
-                GameObject targetChunk = collider.gameObject;
+                
                 editColor(targetChunk, coordHitMesh);
                 editHeights(targetChunk, coordHitMesh);
                 recalculateColliders();
 
             }
-
+            else if (Input.GetMouseButton(1))
+            {
+                generateNature(targetChunk, hitPoint);
+                //Debug.Log(targetChunk.name);
+            }
         }
-        else
+    }
+
+    private void generateNature(GameObject chunk, Vector3 centerPoint)
+    {
+
+        // z divisé
+        // x modulo
+
+        //Debug.Log(chunk.name);
+
+        int x = (int)Mathf.Round(centerPoint.x);
+        int y = -(int)Mathf.Round(centerPoint.z)+CHUNK_SIZE;
+        //Debug.Log(x + " || " + y);
+        //Debug.Log("");
+
+        int minY = (int)(y - ((CHUNK_SIZE * (float)taillePinceau / 2 / 100))) + 1;
+        int maxY = (int)(y + ((CHUNK_SIZE * (float)taillePinceau / 2 / 100)));
+
+        int minX = (int)(x - (CHUNK_SIZE * ((float)taillePinceau / 2 / 100))) + 1;
+        int maxX = (int)(x + (CHUNK_SIZE * ((float)taillePinceau / 2 / 100)));
+
+        //Debug.Log("MinY = "+minY+" || maxY = "+maxY);
+        //Debug.Log("");
+        //Debug.Log("MinX = " + minX + " || maxX = " + maxX);
+
+        supprModels(minX, minY, maxX, maxY);
+        Debug.Log("suppr");
+        for(int i = minY; i < maxY; i++)
         {
-            spotLight_Light.enabled = false;
+            //Debug.Log(i);
+            for(int j = minX; j < maxX; j++)
+            {
+
+                float rand = Random.Range((float)0.1, (float)10.0);
+
+                int numChunk = int.Parse(chunk.name.Split(' ')[1]);
+
+                int xChunk = numChunk % 4;
+                int yChunk = numChunk / 4;
+                int posX = j % CHUNK_SIZE;
+                int posY = i % CHUNK_SIZE;
+
+                int index = posY * (CHUNK_SIZE + 1) + posX;
+                //Debug.Log("ok");
+                GameObject correctChunk = getCorrectChunkForMesh(chunk, ref posY, ref posX);
+                //KO
+                List<Vector3> chunkVertices = new List<Vector3>();
+                //KO
+                correctChunk.GetComponent<MeshFilter>().mesh.GetVertices(chunkVertices);
+                //modifiedChunks.Add(correctChunk, chunkVertices);
+                //List<Vector3> vertices = modifiedChunks[correctChunk];
+
+                //KO
+                if (rand < 0.5 && j >= 0 && j <= 4*CHUNK_SIZE && i >= 0 && i <= 4 * CHUNK_SIZE)
+                {
+                    //Debug.Log(i+"        "+(-(i - CHUNK_SIZE)));
+                    GameObject clone = Instantiate(model, new Vector3(j, chunkVertices[index].y, -(i-CHUNK_SIZE)), Quaternion.identity) as GameObject;
+                    clone.name = "vegetation";
+                }
+            }           
         }
 
+    }
 
+    private void supprModels(int minX, int minY, int maxX, int maxY)
+    {
+        Debug.Log("debut suppr");
+        GameObject[]tab = GameObject.FindObjectsOfType<GameObject>();
+        for (int i = 0; i < tab.Length; i++)
+        {
+            float x = tab[i].transform.localPosition.x;
+            float y = tab[i].transform.localPosition.y;
+            Debug.Log("deboguage" + tab[i].name);
+            if (tab[i].name == "vegetation" && x >= minX && x <= maxX && y >= minY && y <= maxY)
+            {
+                Destroy(tab[i]);
+                Debug.Log("Suppression effectuée");
+            }
+        }
     }
 
     private void editHeights(GameObject chunk, Vector3 centerPoint)
     {
-
 
         int x = (int)Mathf.Round(centerPoint.x);
         int y = (int)Mathf.Round(centerPoint.z);
@@ -167,10 +248,6 @@ public class EditTerrain : MonoBehaviour {
         int minX = (int)((x - (TEXTURE_SIZE * ((float)taillePinceau / 2 / 100))) + 1);
         int maxX = (int)((x + (TEXTURE_SIZE * ((float)taillePinceau/2 / 100))));
 
-        int maxDistZ = Mathf.Abs(y - Mathf.Abs(maxY));
-        int maxDistX = Mathf.Abs(x - Mathf.Abs(maxX));
-        float maxDist = Mathf.Sqrt(Mathf.Pow(maxDistZ, 2) + Mathf.Pow(maxDistX, 2));
-
         for (int i = minY; i <= maxY; i++)
         {
             for (int j = minX; j <= maxX; j++)
@@ -194,10 +271,11 @@ public class EditTerrain : MonoBehaviour {
                     }
 
 
-                    Color c = new Color(dist / maxDist, (maxDist - dist) / maxDist, 0);
-                    Texture2D texture = modifiedTextures[correctChunk];
-                    texture.SetPixel(editX, editY, c);
-
+                    //Color c = new Color(dist / maxDist, (maxDist - dist) / maxDist, 0);
+                    Texture2D textureChunk = modifiedTextures[correctChunk];
+                    //Debug.Log("pos X = " + editX + " ||  pos Y = " + editY);
+                    //Debug.Log(texture.GetPixel(editX, editY));
+                    textureChunk.SetPixel(editX, editY, texture.GetPixel(editX, editY));
                 }
             }
         }
