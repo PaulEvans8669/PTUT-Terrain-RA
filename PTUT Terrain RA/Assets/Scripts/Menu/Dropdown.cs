@@ -61,6 +61,9 @@ public class Dropdown : MonoBehaviour
         GameObject brush = GameObject.Find("Menu").transform.GetChild(1).gameObject;
         brush.transform.localPosition = new Vector3(-2.2f, 0f, 0f);
 
+        GameObject save = GameObject.Find("Save").gameObject;
+        save.transform.localPosition = new Vector3(-3.3f, 0f, 0f);
+
         dropped = true;
 
     }
@@ -74,7 +77,12 @@ public class Dropdown : MonoBehaviour
         {
             transform.GetChild(0).GetComponent<DropShovel>().close();
             transform.GetChild(0).GetComponent<DropShovel>().setDropped(false);
-            Debug.Log(transform.GetChild(0).GetComponent<DropShovel>().getDropped());
+        }
+
+        if (transform.GetChild(1).GetComponent<DropBrush>().getDropped())
+        {
+            transform.GetChild(1).GetComponent<DropBrush>().close();
+            transform.GetChild(1).GetComponent<DropBrush>().setDropped(false);
         }
 
         GameObject shovel = GameObject.Find("Menu").transform.GetChild(0).gameObject;
@@ -82,6 +90,9 @@ public class Dropdown : MonoBehaviour
 
         GameObject brush = GameObject.Find("Menu").transform.GetChild(1).gameObject;
         brush.transform.localPosition = new Vector3(0f, 0f, 30f);
+
+        GameObject save = GameObject.Find("Save").gameObject;
+        save.transform.localPosition = new Vector3(0f, 0f, 40f);
 
         dropped = false;
 
