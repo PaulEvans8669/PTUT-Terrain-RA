@@ -21,6 +21,8 @@ public class Dropdown : MonoBehaviour
     void Update()
     {
 
+        transform.rotation = Quaternion.LookRotation(transform.position - camera.transform.position);
+
         RaycastHit hitInfo = new RaycastHit();
 
         if (Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out hitInfo))
@@ -28,9 +30,10 @@ public class Dropdown : MonoBehaviour
 
             Collider collider = hitInfo.collider;
 
+
             if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("Menu").gameObject))
             {
-
+                
                 if (dropped)
                 {
                     close();

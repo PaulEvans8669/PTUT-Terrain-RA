@@ -66,18 +66,19 @@ public class EditTerrain : MonoBehaviour
         RaycastHit hitInfo = new RaycastHit();
         if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
         {
-            spotLight_Light.enabled = true;
 
             Vector3 hitPoint = hitInfo.point;
             Collider collider = hitInfo.collider;
 
-            Vector3 coordHitMesh = collider.transform.InverseTransformPoint(hitPoint);
-            Vector3 coordSpotLight = hitPoint;
-            coordSpotLight.y += 100;
-            spotLight.transform.position = coordSpotLight;
             GameObject targetChunk = collider.gameObject;
             if (targetChunk.name.Contains("Chunk"))
             {
+                spotLight_Light.enabled = true;
+
+                Vector3 coordHitMesh = targetChunk.transform.InverseTransformPoint(hitPoint);
+                spotLight.transform.position = hitPoint + new Vector3(0, 0, -2);
+                spotLight.transform.LookAt(hitPoint);
+
                 if (Input.GetMouseButton(0))
                 {
 
@@ -92,6 +93,10 @@ public class EditTerrain : MonoBehaviour
                     //Debug.Log(targetChunk.name);
                 }
             }
+            else
+            {
+                spotLight_Light.enabled = false;
+            }
         }
     }
 
@@ -105,7 +110,7 @@ public class EditTerrain : MonoBehaviour
 
         int x = (int)Mathf.Round(centerPoint.x);
         int y = (int)Mathf.Round(centerPoint.z);
-        //Debug.Log(x + " || " + y);
+        Debug.Log(x + " || " + y);
         //Debug.Log("");
 
         int minY = (int)(y - ((CHUNK_SIZE * (float)taillePinceau / 2 / 100))) + 1;
@@ -147,8 +152,11 @@ public class EditTerrain : MonoBehaviour
                         //Debug.Log(i+"        "+(-(i - CHUNK_SIZE)));
                         float height = chunkVertices[index].y;
                         Debug.Log("Height: " + height);
-                        GameObject clone = Instantiate(model, correctChunk.transform.position + new Vector3(editX * correctChunk.transform.parent.transform.localScale.x, height * correctChunk.transform.parent.transform.localScale.y, editY * correctChunk.transform.parent.transform.localScale.z), Quaternion.identity) as GameObject;
+                        //GameObject clone = Instantiate(model, correctChunk.transform.position + new Vector3(editX*correctChunk.transform.parent.transform.localScale.x, height * correctChunk.transform.parent.transform.localScale.y, editY * correctChunk.transform.parent.transform.localScale.z), Quaternion.identity) as GameObject;
+                        GameObject clone = Instantiate(model); //new Vector3(editX,height,editY), , correctChunk.transform
                         clone.transform.parent = correctChunk.transform;
+                        clone.transform.localPosition = new Vector3(editX, height, editY);
+                        clone.transform.localRotation = Quaternion.identity;
                         clone.name = "vegetation";
                     }
                 }

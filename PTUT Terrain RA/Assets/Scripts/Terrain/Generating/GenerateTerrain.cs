@@ -39,17 +39,17 @@ public class GenerateTerrain : MonoBehaviour {
         modelChunk = GameObject.Find("ModelChunk");
         chunkList = new List<GameObject>();
 
-        arrLeft = GameObject.Find("Terrain").transform.GetChild(1).gameObject;
-        arrLeft.transform.position = new Vector3(-10f * transform.localScale.x, 0f, -48.1f * transform.localScale.z);
+        arrLeft = transform.GetChild(1).gameObject;
+        arrLeft.transform.position = new Vector3(transform.localScale.x * - 10f, 0f, transform.localScale.z  * - 48.1f);
 
-        arrRight = GameObject.Find("Terrain").transform.GetChild(2).gameObject;
-        arrRight.transform.position = new Vector3(136f * transform.localScale.x, 0f, -16.1f * transform.localScale.z);
+        arrRight = transform.GetChild(2).gameObject;
+        arrRight.transform.position = new Vector3(transform.localScale.x * 136f, 0f, transform.localScale.z * -16.1f);
 
-        arrUp = GameObject.Find("Terrain").transform.GetChild(3).gameObject;
-        arrUp.transform.position = new Vector3(47.9f * transform.localScale.x, 0f, 40f * transform.localScale.z);
+        arrUp = transform.GetChild(3).gameObject;
+        arrUp.transform.position = new Vector3(transform.localScale.x * 47.9f, 0f, transform.localScale.z * 40f);
 
-        arrDown = GameObject.Find("Terrain").transform.GetChild(4).gameObject;
-        arrDown.transform.position = new Vector3(80.1f * transform.localScale.x, 0f, -105.5f * transform.localScale.z);
+        arrDown = transform.GetChild(4).gameObject;
+        arrDown.transform.position = new Vector3(transform.localScale.x * 80.1f, 0f, transform.localScale.z * -105.5f);
 
         for (int z = 0; z < TERRAIN_SIZE; z++) {
             for (int x = 0; x < TERRAIN_SIZE; x++)
@@ -58,17 +58,16 @@ public class GenerateTerrain : MonoBehaviour {
             }
         }
         modelChunk.SetActive(false);
-
-
+        
         GameObject waterPlane = GameObject.Find("Plane");
-        waterPlane.transform.localPosition = new Vector3(2*CHUNK_SIZE, -1, -CHUNK_SIZE);
+        waterPlane.transform.localPosition = new Vector3(0, -1, 0);
         waterPlane.transform.localScale = new Vector3(TERRAIN_SIZE, 1, TERRAIN_SIZE);
-		
-	}
+
+    }
 
     private void addNewChunk(int z, int x)
     {
-        GameObject newChunk = Instantiate(modelChunk, new Vector3(x * CHUNK_SIZE * transform.localScale.x, 0, -z * CHUNK_SIZE * transform.localScale.z), Quaternion.identity, this.gameObject.transform);
+        GameObject newChunk = Instantiate(modelChunk, new Vector3((x * CHUNK_SIZE) - (TERRAIN_SIZE * CHUNK_SIZE) / 2, 0, -z * CHUNK_SIZE + ((TERRAIN_SIZE-1) * CHUNK_SIZE) / 2 - CHUNK_SIZE/2), Quaternion.identity, this.gameObject.transform);
         newChunk.name = "Chunk " + (z * TERRAIN_SIZE + x);
         newChunk.AddComponent<GenerateChunk>();
         chunkList.Add(newChunk);
