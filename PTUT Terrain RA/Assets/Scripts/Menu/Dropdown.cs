@@ -21,6 +21,10 @@ public class Dropdown : MonoBehaviour
     void Update()
     {
 
+        //transform.LookAt(camera.transform);
+        transform.rotation = Quaternion.LookRotation(transform.position - camera.transform.position);
+
+
         RaycastHit hitInfo = new RaycastHit();
 
         if (Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out hitInfo))
@@ -68,13 +72,16 @@ public class Dropdown : MonoBehaviour
     public void close()
     {
 
-        Debug.Log(transform.GetChild(0).GetComponent<DropShovel>().getDropped());
-
+        // DropShovel
         if (transform.GetChild(0).GetComponent<DropShovel>().getDropped())
         {
             transform.GetChild(0).GetComponent<DropShovel>().close();
-            transform.GetChild(0).GetComponent<DropShovel>().setDropped(false);
-            Debug.Log(transform.GetChild(0).GetComponent<DropShovel>().getDropped());
+        }
+
+        // DropBrush
+        if (transform.GetChild(1).GetComponent<DropBrush>().getDropped())
+        {
+            transform.GetChild(1).GetComponent<DropBrush>().close();
         }
 
         GameObject shovel = GameObject.Find("Menu").transform.GetChild(0).gameObject;

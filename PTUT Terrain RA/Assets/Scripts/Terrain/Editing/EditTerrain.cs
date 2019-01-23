@@ -76,20 +76,30 @@ public class EditTerrain : MonoBehaviour
             coordSpotLight.y += 100;
             spotLight.transform.position = coordSpotLight;
             GameObject targetChunk = collider.gameObject;
-            if (Input.GetMouseButton(0))
+
+            if (targetChunk.name.Contains("Chunk"))
             {
 
-                
-                editColor(targetChunk, coordHitMesh);
-                editHeights(targetChunk, coordHitMesh);
-                recalculateColliders();
+                Debug.Log("Je suis rentré dans ta mère");
+
+                if (Input.GetMouseButton(0))
+                {
+
+                    Debug.Log("Je suis venu j'ai vu j'ai vaincu");
+
+                    editColor(targetChunk, coordHitMesh);
+                    editHeights(targetChunk, coordHitMesh);
+                    recalculateColliders();
+
+                }
+                else if (Input.GetMouseButton(1))
+                {
+                    generateNature(targetChunk, hitPoint);
+                    //Debug.Log(targetChunk.name);
+                }
 
             }
-            else if (Input.GetMouseButton(1))
-            {
-                generateNature(targetChunk, hitPoint);
-                //Debug.Log(targetChunk.name);
-            }
+
         }
     }
 
@@ -149,6 +159,8 @@ public class EditTerrain : MonoBehaviour
                     //Debug.Log(i+"        "+(-(i - CHUNK_SIZE)));
                     GameObject clone = Instantiate(model, new Vector3(j, chunkVertices[index].y, -(i-CHUNK_SIZE)), Quaternion.identity) as GameObject;
                     clone.name = "vegetation";
+                    clone.transform.parent = correctChunk.transform;
+                    clone.transform.localScale = new Vector3(3f, 3f, 3f);
                 }
             }           
         }

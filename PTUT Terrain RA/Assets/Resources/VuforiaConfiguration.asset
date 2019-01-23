@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: VuforiaConfiguration
   m_EditorClassIdentifier: 
   vuforia:
-    vuforiaLicenseKey: 
+    vuforiaLicenseKey: AYWLf2f/////AAABmf5ew3UUl0SrlgBTu/kCCShxFEWpUMF/mjyD2UYv62SAu4MeIqdvlud3vSiJnkL1Xzji66QLHa8dWnTgJp8BMf8cObGNcUQBU7cckKRJv1+3iUVruy+gZK0OMlSeleUOGS+cTKw51DDOqS4JAwROLl6jy6XbxLSlf+kNn1FK+nku2kp/v4mK9Z1kDpxQcydDc6A7iuyZGuZe0Y6V+aF+9binMvoMuPH3Yjijmdj3vbFRh7ivx/oIEKVZKQq2/NgQ7iwDtUZ4IaXoXtWSq5Z0yB2uzzq7cfVmjJRmQ8fZM0sv+66r2xPGDv+7J0A/wkwhuo0+JzLeEs8qSDtRUx7PJH+hZG8vjL79GoxVeb4ZO5Ig
     ufoLicenseKey: QVhWQXFHTC8vLy8vQUFBQUtHWTg5SGdBMFU5L3BMS0tFb014VkpBYUZ5V1grMDdTcEZMSFNOUEo3VytmRzFla24va2kxR2l4MTlJYVE4WWg2L2Vkc1dyVE0zZ29TKzQrVlp6czdBZitKZW91bnJsQ0p4d3V5QllQT1YxRnprTndrNlo4ZHF4UW91T25JWDdadzRlcmdxMmdtazFzOUtwU1U5bmhNOFdDOGFKVmxaSmNxSXprTHRaWFhMMDI1bldNMklFczliejUxRndicHlEeVkvWmNOL3FFT0hwSWU2Sm53bzM5VHo5T2htQ2lWbi95Y3VZd245aitZY0RReHBoWUFHS3RZa2RENTZ4elQ0bmxxYk5rN1Vwd3VTK1luTytQK2toK0tGSnBtY2dGVXhDbWNBYjlMbXJJdTZ6YXVpVHpVMTFYRlozbyszOCtaY1I4SWlNdlVISXdlMWR4eUpBUWRnTFo0WS9xZXFyeEdLSWx4ZFdKd3Z5Q1dwMDU=
     delayedInitialization: 0
     cameraDeviceModeSetting: -1
-    maxSimultaneousImageTargets: 1
-    maxSimultaneousObjectTargets: 1
+    maxSimultaneousImageTargets: 2
+    maxSimultaneousObjectTargets: 2
     useDelayedLoadingObjectTargets: 0
     cameraDirection: 0
     mirrorVideoBackground: 0
@@ -48,12 +48,13 @@ MonoBehaviour:
   videoBackground:
     clippingMode: 0
     numDivisions: 2
-    videoBackgroundShader: {fileID: 0}
-    matteShader: {fileID: 0}
+    videoBackgroundShader: {fileID: 4800000, guid: f40623b353e2f1943b1b3ba42975db7a,
+      type: 3}
+    matteShader: {fileID: 4800000, guid: 66d0d78a3000021448b598bb54a3bfdf, type: 3}
     videoBackgroundEnabled: 1
   deviceTracker:
-    autoInitTracker: 0
-    autoStartTracker: 0
+    autoInitTracker: 1
+    autoStartTracker: 1
     trackingMode: 1
     posePrediction: 0
     modelCorrectionMode: 0
@@ -64,7 +65,7 @@ MonoBehaviour:
     autoInitTracker: 0
     autoStartTracker: 0
   webcam:
-    deviceNameSetInEditor: 
+    deviceNameSetInEditor: Logitech HD Webcam C270
     flipHorizontally: 0
     turnOffWebCam: 0
     renderTextureLayer: 30

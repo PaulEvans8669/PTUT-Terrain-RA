@@ -63,7 +63,9 @@ public class GenerateTerrain : MonoBehaviour {
 
     private void addNewChunk(int z, int x)
     {
-        GameObject newChunk = Instantiate(modelChunk, new Vector3(x * CHUNK_SIZE, 0, -z * CHUNK_SIZE), Quaternion.identity, this.gameObject.transform);
+        GameObject newChunk = Instantiate(modelChunk, new Vector3(0,0,0), Quaternion.identity, this.gameObject.transform);
+        newChunk.transform.parent = transform;
+        newChunk.transform.localPosition = new Vector3(-(TERRAIN_SIZE/2)*CHUNK_SIZE + x * CHUNK_SIZE, 2 * TERRAIN_SIZE, 2*(TERRAIN_SIZE / 3) * CHUNK_SIZE + -z * CHUNK_SIZE);
         newChunk.name = "Chunk " + (z * TERRAIN_SIZE + x);
         newChunk.AddComponent<GenerateChunk>();
         chunkList.Add(newChunk);

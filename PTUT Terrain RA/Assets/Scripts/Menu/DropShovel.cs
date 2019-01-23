@@ -63,18 +63,16 @@ public class DropShovel : MonoBehaviour
     public void open()
     {
 
-        Debug.Log("Dropped");
-
-        GameObject plus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(0).gameObject;
+        GameObject plus = GameObject.Find("ImageTarget").transform.GetChild(0).transform.GetChild(0).transform.GetChild(0).gameObject;
         plus.transform.localPosition = new Vector3(0f, -1.1f, 0f);
 
-        GameObject minus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(1).gameObject;
+        GameObject minus = GameObject.Find("ImageTarget").transform.GetChild(0).transform.GetChild(0).transform.GetChild(1).gameObject;
         minus.transform.localPosition = new Vector3(0f, -2.2f, 0f);
 
-        GameObject fplus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(2).gameObject;
+        GameObject fplus = GameObject.Find("ImageTarget").transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).gameObject;
         fplus.transform.localPosition = new Vector3(0f, 2.2f, 0f);
 
-        GameObject fminus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(3).gameObject;
+        GameObject fminus = GameObject.Find("ImageTarget").transform.GetChild(0).transform.GetChild(0).transform.GetChild(3).gameObject;
         fminus.transform.localPosition = new Vector3(0f, 1.1f, 0f);
 
         dropped = true;
@@ -84,18 +82,16 @@ public class DropShovel : MonoBehaviour
     public void close()
     {
 
-        Debug.Log("Closed");
-
-        GameObject plus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(0).gameObject;
+        GameObject plus = GameObject.Find("ImageTarget").transform.GetChild(0).transform.GetChild(0).transform.GetChild(0).gameObject;
         plus.transform.localPosition = new Vector3(0f, 0f, 5f);
 
-        GameObject minus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(1).gameObject;
+        GameObject minus = GameObject.Find("ImageTarget").transform.GetChild(0).transform.GetChild(0).transform.GetChild(1).gameObject;
         minus.transform.localPosition = new Vector3(0f, 0f, 10f);
 
-        GameObject fplus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(2).gameObject;
+        GameObject fplus = GameObject.Find("ImageTarget").transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).gameObject;
         fplus.transform.localPosition = new Vector3(0f, 0f, 15f);
 
-        GameObject fminus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(3).gameObject;
+        GameObject fminus = GameObject.Find("ImageTarget").transform.GetChild(0).transform.GetChild(0).transform.GetChild(3).gameObject;
         fminus.transform.localPosition = new Vector3(0f, 0f, 20f);
 
         dropped = false;
