@@ -8,6 +8,7 @@ public class GenerateTerrain : MonoBehaviour {
     private int TEXTURE_SIZE;
     public int TERRAIN_SIZE = 1;
     private GameObject modelChunk;
+    private int id;
 
     private List<GameObject> chunkList; //Sorted by id
     
@@ -21,14 +22,34 @@ public class GenerateTerrain : MonoBehaviour {
         return TERRAIN_SIZE;
     }
 
+    public void setTerrainSize(int TERRAIN_SIZE)
+    {
+        this.TERRAIN_SIZE = TERRAIN_SIZE;
+    }
+
     public int getTextureSize()
     {
         return TEXTURE_SIZE;
     }
 
+    public int getId()
+    {
+        return id;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+    
     public List<GameObject> getChunkList()
     {
         return chunkList;
+    }
+
+    public void setChunkList(List<GameObject> newList)
+    {
+        chunkList = newList;
     }
 
 	// Use this for initialization
@@ -55,8 +76,4 @@ public class GenerateTerrain : MonoBehaviour {
         chunkList.Add(newChunk);
     }
 	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
@@ -10,12 +11,10 @@ public class GenerateChunk : MonoBehaviour {
 
     private void Awake()
     {
-        CHUNK_SIZE = GameObject.Find("Terrain").gameObject.GetComponent<GenerateTerrain>().getChunkSize();
-        TEXTURE_SIZE = GameObject.Find("Terrain").gameObject.GetComponent<GenerateTerrain>().getTextureSize();
+        CHUNK_SIZE = transform.parent.gameObject.GetComponent<GenerateTerrain>().getChunkSize();
+        TEXTURE_SIZE = transform.parent.gameObject.GetComponent<GenerateTerrain>().getTextureSize();
         generateMesh();
         generateTexture();
-        /*
-        */
     }
 
     public int getChunkSize(){
@@ -88,18 +87,21 @@ public class GenerateChunk : MonoBehaviour {
 
         Texture2D texture = new Texture2D(TEXTURE_SIZE, TEXTURE_SIZE);
         texture.filterMode = FilterMode.Bilinear;
-        this.GetComponent<Renderer>().material.mainTexture = texture;
-        this.GetComponent<Renderer>().material.SetTextureOffset("_MainTex", new Vector2((float)0.0001, (float)0.0001));
+        setTexture(texture);
         texture = this.GetComponent<Renderer>().material.mainTexture as Texture2D;
         for (int textureY = 0; textureY < TEXTURE_SIZE; textureY++)
         {
             for (int textureX = 0; textureX < TEXTURE_SIZE; textureX++)
             {
                 Color color = new Color((float)113 / 255, (float)125 / 255, (float)45 / 255);
+
+                /*
                 if (textureX == 0 || textureX == TEXTURE_SIZE - 1 || textureY == 0 || textureY == TEXTURE_SIZE - 1)
                 {
                     color = new Color(0, 0, 1);
                 }
+                */
+
                 texture.SetPixel(textureX, textureY, color);
             }
         }
@@ -107,4 +109,15 @@ public class GenerateChunk : MonoBehaviour {
         texture.Apply();
         this.GetComponent<Renderer>().material.enableInstancing = true;
     }
+
+    public void setTexture(Texture2D texture)
+    {
+        GetComponent<Renderer>().material.mainTexture = texture;
+    }
+
+    public Texture2D getTexture()
+    {
+        return GetComponent<Renderer>().material.mainTexture as Texture2D;
+    }
+    
 }
