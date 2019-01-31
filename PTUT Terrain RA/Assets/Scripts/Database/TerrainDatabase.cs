@@ -6,7 +6,8 @@ using Mono.Data.Sqlite;
 using System;
 using System.IO;
 
-public class TerrainDatabase : MonoBehaviour {
+public class TerrainDatabase : MonoBehaviour
+{
 
     /* 
      * Le chargement se fait dans GenerateTerrain.cs 
@@ -33,7 +34,7 @@ public class TerrainDatabase : MonoBehaviour {
         dbConnection = (IDbConnection)new SqliteConnection("URI=file:" + dbFilePath);
 
         openConnection();
-        
+
         genTerComponent = GetComponent<GenerateTerrain>();
     }
     void OnApplicationQuit()
@@ -80,7 +81,7 @@ public class TerrainDatabase : MonoBehaviour {
         command.CommandText = sqlSelectCommand;
         IDataReader reader = command.ExecuteReader();
         reader.Read();
-        
+
         string name = reader.GetString(1);
         int loadedTerrainSize = reader.GetInt32(2);
 
@@ -102,7 +103,7 @@ public class TerrainDatabase : MonoBehaviour {
         command.CommandText = sqlSelectCommand;
         IDataReader reader = command.ExecuteReader();
         reader.Read();
-        
+
         GameObject modelChunk = GameObject.Find("ModelChunk");
         int terrainSize = genTerComponent.getTerrainSize();
 
@@ -129,7 +130,7 @@ public class TerrainDatabase : MonoBehaviour {
 
     private void clearTerrain()
     {
-        foreach(Transform child in transform)
+        foreach (Transform child in transform)
         {
             if (child.name.Contains("Chunk"))
             {
@@ -213,7 +214,7 @@ public class TerrainDatabase : MonoBehaviour {
 
     private Boolean terrainExistsInDatabase(string tName)
     {
-        string sqlSelectCommand = "SELECT COUNT(*) FROM 'Terrain' WHERE name = '"+ tName + "';";
+        string sqlSelectCommand = "SELECT COUNT(*) FROM 'Terrain' WHERE name = '" + tName + "';";
         IDbCommand command = dbConnection.CreateCommand();
         command.CommandText = sqlSelectCommand;
         IDataReader reader = command.ExecuteReader();
@@ -233,7 +234,7 @@ public class TerrainDatabase : MonoBehaviour {
             {
                 insertChunkData(child.gameObject);
             }
-        } 
+        }
 
     }
 
@@ -242,7 +243,7 @@ public class TerrainDatabase : MonoBehaviour {
         int chunkId = int.Parse(chunk.name.Split(' ')[1]);
         IDbCommand command = dbConnection.CreateCommand();
         int terrainId = getIdOfTerrain(gameObject.name);
-        string sqlInsertCommand = "INSERT INTO 'Chunk' VALUES ("+chunkId+",'" + terrainId + "',@bytes);";
+        string sqlInsertCommand = "INSERT INTO 'Chunk' VALUES (" + chunkId + ",'" + terrainId + "',@bytes);";
         Texture2D chunkTexture = chunk.GetComponent<Renderer>().material.mainTexture as Texture2D;
         byte[] bytes = chunkTexture.EncodeToPNG();
         SqliteParameter param = new SqliteParameter("@bytes", DbType.Binary);
@@ -264,14 +265,14 @@ public class TerrainDatabase : MonoBehaviour {
         int chunkId = int.Parse(chunk.name.Split(' ')[1]);
         IDbCommand command = dbConnection.CreateCommand();
         string sqlInsertCommand = "INSERT INTO 'HeightMap' VALUES";
-        for (int z = 0; z<=CHUNK_SIZE; z++)
+        for (int z = 0; z <= CHUNK_SIZE; z++)
         {
-            for(int x = 0; x<=CHUNK_SIZE; x++)
+            for (int x = 0; x <= CHUNK_SIZE; x++)
             {
                 int index = z * (CHUNK_SIZE + 1) + x;
                 float height = heights[index].y;
-                sqlInsertCommand += " (" + terrainId + "," + chunkId + "," + z + "," + x + ","+height+")";
-                if(z== CHUNK_SIZE && x == CHUNK_SIZE)
+                sqlInsertCommand += " (" + terrainId + "," + chunkId + "," + z + "," + x + "," + height + ")";
+                if (z == CHUNK_SIZE && x == CHUNK_SIZE)
                 {
                     sqlInsertCommand += ";";
                 }
@@ -324,5 +325,5 @@ public class TerrainDatabase : MonoBehaviour {
         command.ExecuteNonQuery();
     }
 
-    
+
 }
