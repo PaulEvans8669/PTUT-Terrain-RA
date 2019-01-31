@@ -10,6 +10,8 @@ public class GenerateTerrain : MonoBehaviour {
     private GameObject modelChunk;
     private GameObject arrLeft, arrRight, arrUp, arrDown, cubeMenu;
     private Texture2D texture;
+    private int id;
+    private string name = "Terrain 0";
 
     private List<GameObject> chunkList; //Sorted by id
     
@@ -42,7 +44,17 @@ public class GenerateTerrain : MonoBehaviour {
     {
         this.id = id;
     }
-    
+
+    public string getName()
+    {
+        return name;
+    }
+
+    public void setName(string name)
+    {
+        this.name = name;
+    }
+
     public List<GameObject> getChunkList()
     {
         return chunkList;
@@ -77,7 +89,6 @@ public class GenerateTerrain : MonoBehaviour {
                 addNewChunk(z,  x);
             }
         }
-        modelChunk.SetActive(false);
 		
 	}
 

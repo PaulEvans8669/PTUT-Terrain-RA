@@ -146,9 +146,11 @@ public class EditTerrain : MonoBehaviour
                     {
                         //Debug.Log(i+"        "+(-(i - CHUNK_SIZE)));
                         float height = chunkVertices[index].y;
-                        Debug.Log("Height: " + height);
-                        GameObject clone = Instantiate(model, correctChunk.transform.position + new Vector3(editX, height, editY), Quaternion.identity) as GameObject;
+                        //Debug.Log("Height: " + height);
+                        GameObject clone = Instantiate(model, correctChunk.transform.position + new Vector3(editX+ Random.Range((float)0.0, (float)1), height, editY+ Random.Range((float)0.0, (float)1)), Quaternion.identity) as GameObject;
                         clone.transform.parent = correctChunk.transform;
+                        clone.GetComponent<Renderer>().material.enableInstancing = true;
+                        Destroy(clone.GetComponent<MeshCollider>());
                         clone.name = "vegetation";
                     }
                 }

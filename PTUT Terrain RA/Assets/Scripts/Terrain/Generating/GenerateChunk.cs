@@ -15,6 +15,8 @@ public class GenerateChunk : MonoBehaviour {
         TEXTURE_SIZE = transform.parent.gameObject.GetComponent<GenerateTerrain>().getTextureSize();
         generateMesh();
         generateTexture();
+
+
     }
 
     public int getChunkSize(){

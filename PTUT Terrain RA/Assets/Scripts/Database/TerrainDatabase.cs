@@ -57,6 +57,10 @@ public class TerrainDatabase : MonoBehaviour
         {
             openConnection();
         }
+        if (Input.GetKeyDown(KeyCode.L)) //Load
+        {
+            loadTerrain(3);
+        }
     }
 
     public void openConnection()
@@ -87,6 +91,7 @@ public class TerrainDatabase : MonoBehaviour
 
         GetComponent<GenerateTerrain>().setTerrainSize(loadedTerrainSize);
         GetComponent<GenerateTerrain>().setId(terrainId);
+        GetComponent<GenerateTerrain>().setName(name);
 
         for (int chunkId = 0; chunkId < loadedTerrainSize * loadedTerrainSize; chunkId++)
         {
@@ -109,7 +114,7 @@ public class TerrainDatabase : MonoBehaviour
 
         int z = chunkId / terrainSize;
         int x = chunkId % terrainSize;
-
+        
         GameObject newChunk = Instantiate(modelChunk, new Vector3(x * CHUNK_SIZE, 0, -z * CHUNK_SIZE), Quaternion.identity, this.gameObject.transform);
         newChunk.name = "Chunk " + (z * TERRAIN_SIZE + x);
         newChunk.AddComponent<GenerateChunk>();
@@ -118,14 +123,41 @@ public class TerrainDatabase : MonoBehaviour
         chunkList.Add(newChunk);
         genTerComponent.setChunkList(chunkList);
 
-        byte[] textureBytes = GetBytes(reader, 2);
+
+        byte[] blobContent = new byte[0];
+        blobContent = (byte[])reader["texture"];
 
         GenerateChunk genChuComponent = newChunk.GetComponent<GenerateChunk>();
-        genChuComponent.getTexture().LoadRawTextureData(textureBytes);
+        genChuComponent.getTexture().LoadRawTextureData(blobContent);
 
 
         loadHeightsData(terrainId, chunkId);
+        loadNature(terrainId, chunkId);
 
+    }
+
+    private void loadNature(int terrainId, int chunkId)
+    {
+        string sqlSelectCommand = "SELECT * FROM 'Nature' WHERE terrainId = " + terrainId + " AND chunkId =" + chunkId + " ORDER BY type;";
+        IDbCommand command = dbConnection.CreateCommand();
+        command.CommandText = sqlSelectCommand;
+        IDataReader reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+
+            int chId = reader.GetInt32(1);
+            float z = reader.GetFloat(2);
+            float x = reader.GetFloat(3);
+            float y = reader.GetFloat(4);
+            string type = reader.GetString(5);
+
+            GameObject model = null;
+            if (model == null || !model.GetComponent<MeshFilter>().mesh.name.Replace(" Instance","").Equals(type))
+            {
+                model = Resources.Load("LowPolyNaturePackLite/w_Pallete/Prefabs/"+type, typeof(GameObject)) as GameObject;
+            }
+            GameObject c = Instantiate(model, GameObject.Find("Chunk "+ chId).transform.position + new Vector3(x,y,z), Quaternion.identity) as GameObject;
+        }
     }
 
     private void clearTerrain()
@@ -134,7 +166,7 @@ public class TerrainDatabase : MonoBehaviour
         {
             if (child.name.Contains("Chunk"))
             {
-                Destroy(child);
+                Destroy(child.gameObject);
             }
         }
     }
@@ -200,7 +232,7 @@ public class TerrainDatabase : MonoBehaviour
 
     public void saveTerrain(GameObject terrain)
     {
-        if (!terrainExistsInDatabase(terrain.name))
+        if (!terrainExistsInDatabase(GetComponent<GenerateTerrain>().getName()))
         {
             insertTerrainData();
         }
@@ -224,7 +256,7 @@ public class TerrainDatabase : MonoBehaviour
     private void insertTerrainData()
     {
         IDbCommand command = dbConnection.CreateCommand();
-        string sqlInsertCommand = "INSERT INTO 'Terrain' VALUES (null,'" + gameObject.name + "'," + TERRAIN_SIZE + ");";
+        string sqlInsertCommand = "INSERT INTO 'Terrain' VALUES (null,'" + GetComponent<GenerateTerrain>().getName() + "'," + TERRAIN_SIZE + ");";
         command.CommandText = sqlInsertCommand;
         command.ExecuteNonQuery();
         Debug.Log("Insert Terrain");
@@ -242,7 +274,7 @@ public class TerrainDatabase : MonoBehaviour
     {
         int chunkId = int.Parse(chunk.name.Split(' ')[1]);
         IDbCommand command = dbConnection.CreateCommand();
-        int terrainId = getIdOfTerrain(gameObject.name);
+        int terrainId = getIdOfTerrain(GetComponent<GenerateTerrain>().getName());
         string sqlInsertCommand = "INSERT INTO 'Chunk' VALUES (" + chunkId + ",'" + terrainId + "',@bytes);";
         Texture2D chunkTexture = chunk.GetComponent<Renderer>().material.mainTexture as Texture2D;
         byte[] bytes = chunkTexture.EncodeToPNG();
@@ -253,6 +285,7 @@ public class TerrainDatabase : MonoBehaviour
         command.ExecuteNonQuery();
         Debug.Log("Insert Chunk");
         insertHeightsData(chunk);
+        insertNatureData(chunk);
     }
 
     private void insertHeightsData(GameObject chunk)
@@ -261,7 +294,7 @@ public class TerrainDatabase : MonoBehaviour
         List<Vector3> heights = new List<Vector3>();
         chunk.GetComponent<MeshFilter>().mesh.GetVertices(heights);
 
-        int terrainId = getIdOfTerrain(gameObject.name);
+        int terrainId = getIdOfTerrain(GetComponent<GenerateTerrain>().getName());
         int chunkId = int.Parse(chunk.name.Split(' ')[1]);
         IDbCommand command = dbConnection.CreateCommand();
         string sqlInsertCommand = "INSERT INTO 'HeightMap' VALUES";
@@ -286,6 +319,8 @@ public class TerrainDatabase : MonoBehaviour
         command.ExecuteNonQuery();
         Debug.Log("Insert Heights");
     }
+
+
 
     private int getIdOfTerrain(string tName)
     {
@@ -313,7 +348,7 @@ public class TerrainDatabase : MonoBehaviour
 
     private void deleteChunkData()
     {
-        int terrainId = getIdOfTerrain(gameObject.name);
+        int terrainId = getIdOfTerrain(GetComponent<GenerateTerrain>().getName());
         IDbCommand command = dbConnection.CreateCommand();
 
         string sqlDeleteCommand = "DELETE FROM 'Chunk' WHERE terrainID = " + terrainId + ";";
@@ -323,7 +358,40 @@ public class TerrainDatabase : MonoBehaviour
         sqlDeleteCommand = "DELETE FROM 'HeightMap' WHERE terrainID = " + terrainId + ";";
         command.CommandText = sqlDeleteCommand;
         command.ExecuteNonQuery();
+
+        sqlDeleteCommand = "DELETE FROM 'Nature' WHERE terrainID = " + terrainId + ";";
+        command.CommandText = sqlDeleteCommand;
+        command.ExecuteNonQuery();
     }
 
+    private void insertNatureData(GameObject chunk)
+    {
+        int terrainId = getIdOfTerrain(GetComponent<GenerateTerrain>().getName());
+        int chunkId = int.Parse(chunk.name.Split(' ')[1]);
+        IDbCommand command = dbConnection.CreateCommand();
+        bool needsInsert = false;
+        string sqlInsertCommand = "INSERT INTO 'Nature' VALUES ";
+
+        foreach (Transform child in chunk.transform)
+        {
+            if (child.gameObject.name.Equals("vegetation"))
+            {
+                float z = child.transform.position.z;
+                float x = child.transform.position.x;
+                float y = child.transform.position.y;
+                string prefabName = child.gameObject.GetComponent<MeshFilter>().mesh.name.Replace(" Instance","");
+                sqlInsertCommand += "(" + terrainId + "," + chunkId + "," + z + "," + x +","+y+ ",'" + prefabName + "'),";
+                needsInsert = true;
+
+            }
+        }
+        if (needsInsert)
+        {
+            sqlInsertCommand = sqlInsertCommand.Substring(0, sqlInsertCommand.Length - 1) + ";";
+            Debug.Log(sqlInsertCommand);
+            command.CommandText = sqlInsertCommand;
+            command.ExecuteNonQuery();
+        }
+    }
 
 }
