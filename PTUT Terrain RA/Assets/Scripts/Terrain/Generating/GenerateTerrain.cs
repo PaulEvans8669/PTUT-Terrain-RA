@@ -8,7 +8,8 @@ public class GenerateTerrain : MonoBehaviour {
     private int TEXTURE_SIZE;
     public int TERRAIN_SIZE = 1;
     private GameObject modelChunk;
-    private int id;
+    private GameObject arrLeft, arrRight, arrUp, arrDown, cubeMenu;
+    private Texture2D texture;
 
     private List<GameObject> chunkList; //Sorted by id
     
@@ -57,6 +58,18 @@ public class GenerateTerrain : MonoBehaviour {
         TEXTURE_SIZE = 256;
         modelChunk = GameObject.Find("ModelChunk");
         chunkList = new List<GameObject>();
+
+        arrLeft = GameObject.Find("Terrain").transform.GetChild(1).gameObject;
+        arrLeft.transform.position = new Vector3(-10f, 0f, -48.1f);
+
+        arrRight = GameObject.Find("Terrain").transform.GetChild(2).gameObject;
+        arrRight.transform.position = new Vector3(136f, 0f, -16.1f);
+
+        arrUp = GameObject.Find("Terrain").transform.GetChild(3).gameObject;
+        arrUp.transform.position = new Vector3(47.9f, 0f, 40f);
+
+        arrDown = GameObject.Find("Terrain").transform.GetChild(4).gameObject;
+        arrDown.transform.position = new Vector3(80.1f, 0f, -105.5f);
 
         for (int z = 0; z < TERRAIN_SIZE; z++) {
             for (int x = 0; x < TERRAIN_SIZE; x++)
