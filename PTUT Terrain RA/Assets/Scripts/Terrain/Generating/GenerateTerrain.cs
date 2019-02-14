@@ -10,6 +10,8 @@ public class GenerateTerrain : MonoBehaviour {
     private GameObject modelChunk;
     private GameObject arrLeft, arrRight, arrUp, arrDown, cubeMenu;
     private Texture2D texture;
+    public List<int> afficheChunk;
+    public List<GameObject> chunkList2;
 
     private List<GameObject> chunkList; //Sorted by id
     
@@ -33,11 +35,17 @@ public class GenerateTerrain : MonoBehaviour {
         return chunkList;
     }
 
-	// Use this for initialization
-	void Start () {
+    public List<int> getAfficheChunk()
+    {
+        return afficheChunk;
+    }
+
+    // Use this for initialization
+    void Start () {
         TEXTURE_SIZE = 256;
         modelChunk = GameObject.Find("ModelChunk");
         chunkList = new List<GameObject>();
+        afficheChunk = new List<int>();
 
         arrLeft = GameObject.Find("Terrain").transform.GetChild(1).gameObject;
         arrLeft.transform.position = new Vector3(-10f, 0f, -48.1f);
@@ -58,8 +66,25 @@ public class GenerateTerrain : MonoBehaviour {
             }
         }
         modelChunk.SetActive(false);
-		
-	}
+
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                afficheChunk.Add(TERRAIN_SIZE * i + j);
+                chunkList[TERRAIN_SIZE * i + j].SetActive(true);
+            }
+        }
+
+        chunkList2 = chunkList;
+        /*
+        for (int i = 0; i < afficheChunk.Count; i++)
+        {
+            Debug.Log(afficheChunk[i]);
+        }
+        */
+
+    }
 
     private void addNewChunk(int z, int x)
     {
@@ -67,6 +92,7 @@ public class GenerateTerrain : MonoBehaviour {
         newChunk.name = "Chunk " + (z * TERRAIN_SIZE + x);
         newChunk.AddComponent<GenerateChunk>();
         chunkList.Add(newChunk);
+        newChunk.SetActive(false);
     }
 	
 	// Update is called once per frame
