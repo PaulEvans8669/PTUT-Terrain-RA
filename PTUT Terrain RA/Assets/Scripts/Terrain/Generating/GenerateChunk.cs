@@ -107,4 +107,9 @@ public class GenerateChunk : MonoBehaviour {
         texture.Apply();
         this.GetComponent<Renderer>().material.enableInstancing = true;
     }
+
+    public Texture2D getTexture()
+    {
+        return GetComponent<Renderer>().material.mainTexture as Texture2D;
+    }
 }

@@ -110,7 +110,6 @@ public class chargerTerrainDroit : MonoBehaviour
 
                 chunkList[listeChunk[i]].SetActive(false);
                 listeChunk[i] += 1;
-                Debug.Log((listeChunk[i] - 1) + "  ||  " + listeChunk[i]);
 
             }
 
@@ -141,8 +140,7 @@ public class chargerTerrainDroit : MonoBehaviour
             {
 
                 chunkList[listeChunk[i]].SetActive(false);
-                listeChunk[i] += 8;
-                Debug.Log((listeChunk[i] - 8) + "  ||  " + listeChunk[i]);
+                listeChunk[i] += TERRAIN_SIZE;
 
             }
 
@@ -174,7 +172,6 @@ public class chargerTerrainDroit : MonoBehaviour
 
                 chunkList[listeChunk[i]].SetActive(false);
                 listeChunk[i] -= 1;
-                Debug.Log((listeChunk[i] + 1) + "  ||  " + listeChunk[i]);
 
             }
 
@@ -205,8 +202,7 @@ public class chargerTerrainDroit : MonoBehaviour
             {
 
                 chunkList[listeChunk[i]].SetActive(false);
-                listeChunk[i] -= 8;
-                Debug.Log((listeChunk[i] + 8) + "  ||  " + listeChunk[i]);
+                listeChunk[i] -= TERRAIN_SIZE;
 
             }
 
@@ -226,7 +222,7 @@ public class chargerTerrainDroit : MonoBehaviour
             case "h":
                 for (int i = 0; i < listeChunk.Count; i++)
                 {
-                    if ((listeChunk[i] - 8)<0)
+                    if ((listeChunk[i] - TERRAIN_SIZE)<0)
                     {
                         return false;
                     }
@@ -235,14 +231,14 @@ public class chargerTerrainDroit : MonoBehaviour
             case "b":
                 for (int i = 0; i < listeChunk.Count; i++)
                 {
-                    if ((listeChunk[i] + 8) > chunkList.Count)
+                    if ((listeChunk[i] + +TERRAIN_SIZE) > chunkList.Count)
                     {
                         return false;
                     }
                 }
                 return true;
             case "d":
-                if ((listeChunk[3]) % TERRAIN_SIZE == 7)
+                if ((listeChunk[3]) % TERRAIN_SIZE == TERRAIN_SIZE-1)
                 {
                     return false;
                 }

@@ -12,6 +12,8 @@ public class GenerateTerrain : MonoBehaviour {
     private Texture2D texture;
     public List<int> afficheChunk;
     public List<GameObject> chunkList2;
+    private string name = "Terrain 0";
+    private int id;
 
     private List<GameObject> chunkList; //Sorted by id
     
@@ -20,9 +22,34 @@ public class GenerateTerrain : MonoBehaviour {
         return CHUNK_SIZE;
     }
 
+    public int getId()
+    {
+        return id;
+    }
+
+    public void setId(int a)
+    {
+        id = a;
+    }
+
+    public string getName()
+    {
+        return name;
+    }
+
+    public void setName(string a)
+    {
+        name = a;
+    }
+
     public int getTerrainSize()
     {
         return TERRAIN_SIZE;
+    }
+
+    public void setTerrainSize(int a)
+    {
+        TERRAIN_SIZE = a;
     }
 
     public int getTextureSize()
@@ -33,6 +60,11 @@ public class GenerateTerrain : MonoBehaviour {
     public List<GameObject> getChunkList()
     {
         return chunkList;
+    }
+
+    public void setChunkList(List<GameObject> game)
+    {
+        chunkList = game;
     }
 
     public List<int> getAfficheChunk()
@@ -65,7 +97,6 @@ public class GenerateTerrain : MonoBehaviour {
                 addNewChunk(z,  x);
             }
         }
-        modelChunk.SetActive(false);
 
         for (int i = 0; i < 4; i++)
         {
