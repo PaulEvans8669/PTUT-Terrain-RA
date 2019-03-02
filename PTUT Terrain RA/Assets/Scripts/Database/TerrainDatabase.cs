@@ -21,6 +21,7 @@ public class TerrainDatabase : MonoBehaviour {
         openConnection();
         terrainName = this.gameObject.name;
     }
+
     void OnApplicationQuit()
     {
         closeConnection();
