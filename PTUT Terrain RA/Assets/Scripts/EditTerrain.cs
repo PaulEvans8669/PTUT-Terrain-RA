@@ -3,6 +3,7 @@ using Mono.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
@@ -23,12 +24,26 @@ class EditTerrain : MonoBehaviour
     private GameObject spotLight;
     private Light spotLight_Light;
     public int taillePinceau = 10;
-
     public int FORCE = 10;
-    public Texture2D ModelTexture;
-    public GameObject model;
 
-    private Assets.Scripts.lib.Terrain mainTerrain;
+    private Texture2D ModelTexture { get; set; }
+    private GameObject model { get; set; }
+
+
+    private List<Texture2D> textureList { get; set; }
+    private int textureListCursor { get; set; }
+    private GameObject textureDisplayObject;
+    private Texture2D defaultDisplayTexture;
+
+    private List<GameObject> prefabList { get; set; }
+    private int prefabListCursor { get; set; }
+    private GameObject prefabDisplayObject;
+    private Texture2D defaultDisplayPrefab;
+
+
+
+
+    public Assets.Scripts.lib.Terrain MainTerrain { get; set; }
     private bool generated = false;
 
 
@@ -38,6 +53,21 @@ class EditTerrain : MonoBehaviour
         mainCamera = Camera.main;
         spotLight = GameObject.Find("Spot Light");
         spotLight_Light = spotLight.GetComponent<Light>();
+
+        textureList = new List<Texture2D>();
+        textureList.Insert(0, null);
+        textureListCursor = 0;
+        textureDisplayObject = GameObject.Find("Brush");
+        defaultDisplayTexture = textureDisplayObject.GetComponent<Renderer>().material.mainTexture as Texture2D;
+
+        prefabList = new List<GameObject>();
+        prefabList.Insert(0, null);
+        prefabListCursor = 0;
+        prefabDisplayObject = GameObject.Find("vegetation");
+        defaultDisplayPrefab = prefabDisplayObject.GetComponent<Renderer>().material.mainTexture as Texture2D;
+
+        loadTextures();
+        loadPrefabs();
 
         string dbFilePath = "Assets/Resources/mapsData.db";
         dbConnection = new SqliteConnection("URI=file:" + dbFilePath);
@@ -65,10 +95,112 @@ class EditTerrain : MonoBehaviour
                 {
                     TERRAIN_SIZE = 4;
                 }
-                mainTerrain = new Assets.Scripts.lib.Terrain(this.gameObject, "Volcan0", TERRAIN_SIZE);
+                MainTerrain = new Assets.Scripts.lib.Terrain(this.gameObject, TERRAIN_SIZE);
             }
         }
     }
+
+    private void loadTextures()
+    {
+        try
+        {
+            string prefabsPath = "Textures/";
+            Texture2D[] texList = Resources.LoadAll(prefabsPath, typeof(Texture2D)).Cast<Texture2D>().ToArray();
+            foreach (Texture2D tex in texList)
+            {
+                textureList.Add(tex);
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log(ex);
+        }
+    }
+
+    private void loadPrefabs()
+    {
+        try
+        {
+            string prefabsPath = "LowPolyNaturePackLite/w_Pallete/Prefabs/";
+            GameObject[] goList = Resources.LoadAll(prefabsPath, typeof(GameObject)).Cast<GameObject>().ToArray();
+            foreach(GameObject go in goList)
+            {
+                prefabList.Add(go);
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log(ex);
+        }
+    }
+
+
+
+    public void textureUp()
+    {
+        textureListCursor++;
+        textureListCursor = textureListCursor % textureList.Count;
+        ModelTexture = textureList[textureListCursor];
+        changeTextureDisplay();
+    }
+
+    public void textureDown()
+    {
+        textureListCursor--;
+        if (textureListCursor < 0)
+        {
+            textureListCursor = textureList.Count - 1;
+        }
+        ModelTexture = textureList[textureListCursor];
+        changeTextureDisplay();
+    }
+
+    private void changeTextureDisplay()
+    {
+        if (ModelTexture != null)
+        {
+            textureDisplayObject.GetComponent<Renderer>().material.mainTexture = ModelTexture;
+        }
+        else
+        {
+            textureDisplayObject.GetComponent<Renderer>().material.mainTexture = defaultDisplayTexture;
+        }
+    }
+
+    public void prefabUp()
+    {
+        prefabListCursor++;
+        prefabListCursor = prefabListCursor % prefabList.Count;
+        model = prefabList[prefabListCursor];
+        changePrefabDisplay();
+    }
+
+    public void prefabDown()
+    {
+        prefabListCursor--;
+        if (prefabListCursor < 0)
+        {
+            prefabListCursor = prefabList.Count - 1;
+        }
+        model = prefabList[prefabListCursor];
+        changePrefabDisplay();
+    }
+
+    private void changePrefabDisplay()
+    {
+        if (model != null)
+        {
+            Texture2D prefabDisplay = AssetPreview.GetAssetPreview(model);
+            prefabDisplayObject.GetComponent<Renderer>().material.mainTexture = prefabDisplay;
+        }
+        else
+        {
+            prefabDisplayObject.GetComponent<Renderer>().material.mainTexture = defaultDisplayPrefab;
+        }
+    }
+
 
     private void checkPublicParametersValues()
     {
@@ -131,7 +263,9 @@ class EditTerrain : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.S))
         {
-            mainTerrain.save(dbConnection);
+
+            MainTerrain.Nom = DateTime.Now.ToString("dd/mm/yyyy HH:mm:ss");
+            MainTerrain.save(dbConnection);
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
@@ -143,7 +277,7 @@ class EditTerrain : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.L))
         {
-            mainTerrain = new Assets.Scripts.lib.Terrain(dbConnection, this.gameObject, 17);
+            MainTerrain = new Assets.Scripts.lib.Terrain(dbConnection, this.gameObject, 17);
         }
     }
 
@@ -160,7 +294,7 @@ class EditTerrain : MonoBehaviour
 
         Color[] modelTextureColors = new Color[TEXTURE_SIZE * TEXTURE_SIZE];
         modelTextureColors = ModelTexture.GetPixels(0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
-        Assets.Scripts.lib.Chunk chunk = mainTerrain.ChunkList[targetChunkId];
+        Assets.Scripts.lib.Chunk chunk = MainTerrain.ChunkList[targetChunkId];
 
         int x = (int)Mathf.Round(centerPoint.x) * (TEXTURE_SIZE / CHUNK_SIZE);
         int y = (int)Mathf.Round(centerPoint.z) * (TEXTURE_SIZE / CHUNK_SIZE);
@@ -197,7 +331,7 @@ class EditTerrain : MonoBehaviour
                 }
             }
         }
-        foreach(Chunk modifiedChunk in mainTerrain.ChunkList)
+        foreach(Chunk modifiedChunk in MainTerrain.ChunkList)
         {
             if (modifiedChunk.NeedsTextureUpdate)
             {
@@ -214,7 +348,7 @@ class EditTerrain : MonoBehaviour
 
     private void generateNature(int targetChunkId, Vector3 centerPoint)
     {
-        Assets.Scripts.lib.Chunk chunk = mainTerrain.ChunkList[targetChunkId];
+        Assets.Scripts.lib.Chunk chunk = MainTerrain.ChunkList[targetChunkId];
 
         int x = (int)Mathf.Round(centerPoint.x);
         int y = (int)Mathf.Round(centerPoint.z);
@@ -254,7 +388,7 @@ class EditTerrain : MonoBehaviour
     Dictionary<Chunk, List<Vector3>> modifiedChunks = new Dictionary<Chunk, List<Vector3>>();
     private void editHeights(int targetChunkId, Vector3 centerPoint)
     {
-        Assets.Scripts.lib.Chunk chunk = mainTerrain.ChunkList[targetChunkId];
+        Chunk chunk = MainTerrain.ChunkList[targetChunkId];
 
         int x = (int)Mathf.Round(centerPoint.x);
         int y = (int)Mathf.Round(centerPoint.z);
@@ -319,7 +453,7 @@ class EditTerrain : MonoBehaviour
         }
         recalculateColliders();
         recalculateNature();
-        mainTerrain.recalculateAdjacentHeights(chunk);
+        MainTerrain.recalculateAdjacentHeights(chunk);
         modifiedChunks.Clear();
 
     }

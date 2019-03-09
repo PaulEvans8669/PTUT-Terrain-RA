@@ -18,11 +18,14 @@ namespace Assets.Scripts.lib
         public string Nom { get; set; }
         public int Size { get; set; }
         public List<Chunk> ChunkList { get; set; }
+        public int offsetX { get; set; } //West ++  East --
+        public int offsetY { get; set; } //North ++ South --
 
-        public Terrain(GameObject associatedGameObject, string nom, int size)
+        public Terrain(GameObject associatedGameObject, int size)
         {
+            offsetX = 0;
+            offsetY = 0;
             TerrainGameObject = associatedGameObject;
-            Nom = nom;
             Size = size;
             ChunkList = new List<Chunk>();
             generateNewTerrain();
@@ -32,6 +35,8 @@ namespace Assets.Scripts.lib
 
         public Terrain(IDbConnection dbConnection, GameObject associatedGameObject, int id)
         {
+            offsetX = 0;
+            offsetY = 0;
             TerrainGameObject = associatedGameObject;
             Id = id;
             ChunkList = new List<Chunk>();
@@ -170,6 +175,52 @@ namespace Assets.Scripts.lib
                 topRightChunk.ChunkGameObject.GetComponent<MeshFilter>().mesh.SetVertices(adjacentChunkHeights);
             }
         }
+
+        public void moveNorth()
+        {
+            if(Size> 4 && offsetY < Size - 4)
+            {
+                offsetY++;
+                foreach (Chunk c in ChunkList)
+                {
+                    c.moveNorth();
+                }
+            }
+        }
+        public void moveSouth()
+        {
+            if (Size > 4 && offsetY > 0)
+            {
+                offsetY--;
+                foreach (Chunk c in ChunkList)
+                {
+                    c.moveSouth();
+                }
+            }
+        }
+        public void moveEast()
+        {
+            if (Size > 4 && offsetX > 0)
+            {
+                offsetX--;
+                foreach (Chunk c in ChunkList)
+                {
+                    c.moveEast();
+                }
+            }
+        }
+        public void moveWest()
+        {
+            if (Size > 4 && offsetX < Size - 4)
+            {
+                offsetX++;
+                foreach (Chunk c in ChunkList)
+                {
+                    c.moveWest();
+                }
+            }
+        }
+
 
         #region Database
         #region Save

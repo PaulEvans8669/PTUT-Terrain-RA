@@ -34,7 +34,8 @@ public class Dropdown : MonoBehaviour
                 if (dropped)
                 {
                     close();
-                }else
+                }
+                else
                 {
                     open();
                 }
@@ -48,7 +49,7 @@ public class Dropdown : MonoBehaviour
     public bool getDropped()
     {
 
-        return dropped; 
+        return dropped;
 
     }
 
@@ -61,8 +62,14 @@ public class Dropdown : MonoBehaviour
         GameObject brush = GameObject.Find("Menu").transform.GetChild(1).gameObject;
         brush.transform.localPosition = new Vector3(-2.2f, 0f, 0f);
 
+        GameObject vegetation = GameObject.Find("vegetation").gameObject;
+        vegetation.transform.localPosition = new Vector3(-3.3f, 0f, 0f);
+
         GameObject save = GameObject.Find("Save").gameObject;
-        save.transform.localPosition = new Vector3(-3.3f, 0f, 0f);
+        save.transform.localPosition = new Vector3(-4.4f, 0f, 0f);
+
+        GameObject newbutton = GameObject.Find("New").gameObject;
+        newbutton.transform.localPosition = new Vector3(-4.4f, 0f, 0f);
 
         dropped = true;
 
@@ -70,8 +77,6 @@ public class Dropdown : MonoBehaviour
 
     public void close()
     {
-
-        Debug.Log(transform.GetChild(0).GetComponent<DropShovel>().getDropped());
 
         if (transform.GetChild(0).GetComponent<DropShovel>().getDropped())
         {
@@ -85,14 +90,26 @@ public class Dropdown : MonoBehaviour
             transform.GetChild(1).GetComponent<DropBrush>().setDropped(false);
         }
 
+        if (transform.GetChild(3).GetComponent<DropVeg>().getDropped())
+        {
+            transform.GetChild(3).GetComponent<DropVeg>().close();
+            transform.GetChild(3).GetComponent<DropVeg>().setDropped(false);
+        }
+
         GameObject shovel = GameObject.Find("Menu").transform.GetChild(0).gameObject;
         shovel.transform.localPosition = new Vector3(0f, 0f, 5f);
 
         GameObject brush = GameObject.Find("Menu").transform.GetChild(1).gameObject;
         brush.transform.localPosition = new Vector3(0f, 0f, 30f);
 
+        GameObject vegetation = GameObject.Find("vegetation").gameObject;
+        vegetation.transform.localPosition = new Vector3(0f, 0f, 40f);
+
         GameObject save = GameObject.Find("Save").gameObject;
-        save.transform.localPosition = new Vector3(0f, 0f, 40f);
+        save.transform.localPosition = new Vector3(0f, 0f, 50f);
+
+        GameObject newbutton = GameObject.Find("New").gameObject;
+        newbutton.transform.localPosition = new Vector3(0f, 0f, 0f);
 
         dropped = false;
 

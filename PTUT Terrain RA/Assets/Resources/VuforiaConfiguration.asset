@@ -22,8 +22,8 @@ MonoBehaviour:
     useDelayedLoadingObjectTargets: 0
     cameraDirection: 0
     mirrorVideoBackground: 0
-    version: 7.5.26
-    eulaAcceptedVersions: '{"Values":["7.2","7.5","7.1"]}'
+    version: 8.0.10
+    eulaAcceptedVersions: '{"Values":["7.2","7.5","7.1","7.7","8.0","0.0","8.1"]}'
   digitalEyewear:
     cameraOffset: 0.06
     distortionRenderingLayer: 31
@@ -59,7 +59,6 @@ MonoBehaviour:
     modelCorrectionMode: 0
     modelTransformEnabled: 0
     modelTransform: {x: 0, y: 0.1, z: -0.1}
-    fusionMode: 7
   smartTerrain:
     autoInitTracker: 0
     autoStartTracker: 0

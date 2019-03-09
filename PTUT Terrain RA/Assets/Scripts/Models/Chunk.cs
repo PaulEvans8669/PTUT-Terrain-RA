@@ -10,7 +10,7 @@ namespace Assets.Scripts.lib
 {
     class Chunk
     {
-        private int textureSize = 256;
+        private int textureSize = 256; //correspond à la taille de toutes les textures disponibles
         
         public Terrain MainTerrain { get; set; }
         public GameObject ChunkGameObject { get; set; }
@@ -221,51 +221,58 @@ namespace Assets.Scripts.lib
         public void moveNorth()
         {
             ChunkGameObject.transform.Translate(new Vector3(0, 0, MeshSize));
-            if (ChunkGameObject.transform.position.z > 0)
+            if (isInVisibleZone())
             {
-                ChunkGameObject.SetActive(false);
+                Visible = true;
             }
             else
             {
-                ChunkGameObject.SetActive(true);
+                Visible = false;
             }
         }
         public void moveSouth()
         {
             ChunkGameObject.transform.Translate(new Vector3(0, 0, -MeshSize));
-            if (ChunkGameObject.transform.position.z < -3*MeshSize)
+            if (isInVisibleZone())
             {
-                ChunkGameObject.SetActive(false);
+                Visible = true;
             }
             else
             {
-                ChunkGameObject.SetActive(true);
+                Visible = false;
             }
         }
         public void moveEast()
         {
             ChunkGameObject.transform.Translate(new Vector3(MeshSize, 0, 0));
 
-            if (ChunkGameObject.transform.position.x > 3*MeshSize)
+            if (isInVisibleZone())
             {
-                ChunkGameObject.SetActive(false);
+                Visible = true;
             }
             else
             {
-                ChunkGameObject.SetActive(true);
+                Visible = false;
             }
         }
         public void moveWest()
         {
             ChunkGameObject.transform.Translate(new Vector3(-MeshSize, 0, 0));
-            if (ChunkGameObject.transform.position.x < 0)
+            if (isInVisibleZone())
             {
-                ChunkGameObject.SetActive(false);
+                Visible = true;
             }
             else
             {
-                ChunkGameObject.SetActive(true);
+                Visible = false;
             }
+        }
+
+        private bool isInVisibleZone()
+        {
+            float x = ChunkGameObject.transform.position.x;
+            float z = ChunkGameObject.transform.position.z;
+            return (x >= 0 && x <= 3 * MeshSize && z <= 0 && z >= -3 * MeshSize);
         }
 
         public Chunk getLeftChunk()
