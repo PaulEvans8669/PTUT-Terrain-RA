@@ -28,7 +28,7 @@ public class DropShovel : MonoBehaviour
 
             Collider collider = hitInfo.collider;
 
-            if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("Menu").transform.GetChild(0).gameObject))
+            if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("Shovel").gameObject))
             {
 
                 if (dropped)
@@ -63,19 +63,15 @@ public class DropShovel : MonoBehaviour
     public void open()
     {
 
-        Debug.Log("Dropped");
+        GameObject rayPlus = GameObject.Find("ShovelRayPlus").gameObject;
+        GameObject rayMinus = GameObject.Find("ShovelRayMinus").gameObject;
+        GameObject extrPlus = GameObject.Find("ShovelExtrPlus").gameObject;
+        GameObject extrMinus = GameObject.Find("ShovelExtrMinus").gameObject;
 
-        GameObject plus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(0).gameObject;
-        plus.transform.localPosition = new Vector3(0f, -1.1f, 0f);
-
-        GameObject minus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(1).gameObject;
-        minus.transform.localPosition = new Vector3(0f, -2.2f, 0f);
-
-        GameObject fplus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(2).gameObject;
-        fplus.transform.localPosition = new Vector3(0f, 2.2f, 0f);
-
-        GameObject fminus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(3).gameObject;
-        fminus.transform.localPosition = new Vector3(0f, 1.1f, 0f);
+        extrMinus.transform.localPosition = new Vector3(0f, 1.1f, 0f);
+        extrPlus.transform.localPosition = new Vector3(0f, 2.2f, 0f);
+        rayMinus.transform.localPosition = new Vector3(0f, -2.2f, 0f);
+        rayPlus.transform.localPosition = new Vector3(0f, -1.1f, 0f);
 
         dropped = true;
 
@@ -84,18 +80,14 @@ public class DropShovel : MonoBehaviour
     public void close()
     {
 
-        Debug.Log("Closed");
-
-        GameObject plus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(0).gameObject;
+        GameObject plus = GameObject.Find("ShovelRayPlus").gameObject;
+        GameObject minus = GameObject.Find("ShovelRayMinus").gameObject;
+        GameObject fplus = GameObject.Find("ShovelExtrPlus").gameObject;
+        GameObject fminus = GameObject.Find("ShovelExtrMinus").gameObject;
+        
         plus.transform.localPosition = new Vector3(0f, 0f, 5f);
-
-        GameObject minus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(1).gameObject;
         minus.transform.localPosition = new Vector3(0f, 0f, 10f);
-
-        GameObject fplus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(2).gameObject;
         fplus.transform.localPosition = new Vector3(0f, 0f, 15f);
-
-        GameObject fminus = GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(3).gameObject;
         fminus.transform.localPosition = new Vector3(0f, 0f, 20f);
 
         dropped = false;

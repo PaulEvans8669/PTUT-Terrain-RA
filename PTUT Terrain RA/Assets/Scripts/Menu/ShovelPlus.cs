@@ -25,7 +25,7 @@ public class ShovelPlus : MonoBehaviour
 
             Collider collider = hitInfo.collider;
 
-            if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(0).gameObject))
+            if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("ShovelRayPlus").gameObject))
             {
 
                 plus();

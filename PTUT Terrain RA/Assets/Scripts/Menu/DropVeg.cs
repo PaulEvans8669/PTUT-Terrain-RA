@@ -16,8 +16,8 @@ public class DropVeg : MonoBehaviour
     {
         camera = Camera.main;
         dropped = false;
-        transform.Find("vegUp").GetComponent<VegSelection>().setSize(prefabs.Count);
-        transform.Find("vegDown").GetComponent<VegSelection>().setSize(prefabs.Count);
+        transform.Find("VegUp").GetComponent<VegSelection>().setSize(prefabs.Count);
+        transform.Find("VegDown").GetComponent<VegSelection>().setSize(prefabs.Count);
 
     }
 
@@ -32,7 +32,7 @@ public class DropVeg : MonoBehaviour
 
             Collider collider = hitInfo.collider;
 
-            if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("vegetation").gameObject))
+            if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("Vegetation").gameObject))
             {
 
                 if (dropped)
@@ -89,10 +89,10 @@ public class DropVeg : MonoBehaviour
     public void open()
     {
 
-        GameObject vegUp = GameObject.Find("vegUp").gameObject;
+        GameObject vegUp = GameObject.Find("VegUp").gameObject;
         vegUp.transform.localPosition = new Vector3(0f, 1.1f, 0f);
 
-        GameObject vegDown = GameObject.Find("vegDown").gameObject;
+        GameObject vegDown = GameObject.Find("VegDown").gameObject;
         vegDown.transform.localPosition = new Vector3(0f, -1.1f, 0f);
 
         dropped = true;
@@ -102,10 +102,10 @@ public class DropVeg : MonoBehaviour
     public void close()
     {
 
-        GameObject vegUp = GameObject.Find("vegUp").gameObject;
+        GameObject vegUp = GameObject.Find("VegUp").gameObject;
         vegUp.transform.localPosition = new Vector3(0f, 0f, 5f);
 
-        GameObject vegDown = GameObject.Find("vegDown").gameObject;
+        GameObject vegDown = GameObject.Find("VegDown").gameObject;
         vegDown.transform.localPosition = new Vector3(0f, 0f, 10f);
 
         dropped = false;

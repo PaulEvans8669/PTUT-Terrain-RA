@@ -24,7 +24,7 @@ public class ShovelMinus : MonoBehaviour
 
             Collider collider = hitInfo.collider;
 
-            if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("Menu").transform.GetChild(0).transform.GetChild(1).gameObject))
+            if (Input.GetMouseButtonDown(0) && (collider.gameObject).Equals(GameObject.Find("ShovelRayMinus").gameObject))
             {
 
                 minus();

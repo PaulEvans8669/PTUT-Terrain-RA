@@ -28,12 +28,12 @@ public class VegSelection : MonoBehaviour
 
                 Collider collider = hitInfo.collider;
 
-                if ((collider.gameObject).Equals(GameObject.Find("vegUp").gameObject))
+                if ((collider.gameObject).Equals(GameObject.Find("VegUp").gameObject))
                 {
                     editor.prefabUp();
                 }
 
-                if ((collider.gameObject).Equals(GameObject.Find("vegDown").gameObject))
+                if ((collider.gameObject).Equals(GameObject.Find("VegDown").gameObject))
                 {
                     editor.prefabDown();
                 }

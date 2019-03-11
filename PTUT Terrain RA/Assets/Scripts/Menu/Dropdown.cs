@@ -53,24 +53,48 @@ public class Dropdown : MonoBehaviour
 
     }
 
+    public void openPalette()
+    {
+        GameObject palette = GameObject.Find("Palette").gameObject;
+        palette.transform.localPosition = new Vector3(-1.1f, 0f, 0f);
+    }
+
+    public void closePalette()
+    {
+        GameObject palette = GameObject.Find("Palette").gameObject;
+
+        if (GameObject.Find("Palette").GetComponent<DropPalette>().getDropped())
+        {
+            GameObject.Find("Palette").GetComponent<DropPalette>().close();
+        }
+
+        palette.transform.localPosition = new Vector3(0f, 0f, 5f);
+    }
+
+    public void openFile()
+    {
+        GameObject file = GameObject.Find("File").gameObject;
+        file.transform.localPosition = new Vector3(1.1f, 0f, 0f);
+    }
+
+    public void closeFile()
+    {
+        GameObject file = GameObject.Find("File").gameObject;
+
+        if (GameObject.Find("File").GetComponent<DropFile>().getDropped())
+        {
+            GameObject.Find("File").GetComponent<DropFile>().close();
+        }
+
+        file.transform.localPosition = new Vector3(0f, 0f, 50f);
+    }
+
     public void open()
     {
 
-        GameObject shovel = GameObject.Find("Menu").transform.GetChild(0).gameObject;
-        shovel.transform.localPosition = new Vector3(-1.1f, 0f, 0f);
-
-        GameObject brush = GameObject.Find("Menu").transform.GetChild(1).gameObject;
-        brush.transform.localPosition = new Vector3(-2.2f, 0f, 0f);
-
-        GameObject vegetation = GameObject.Find("vegetation").gameObject;
-        vegetation.transform.localPosition = new Vector3(-3.3f, 0f, 0f);
-
-        GameObject save = GameObject.Find("Save").gameObject;
-        save.transform.localPosition = new Vector3(-4.4f, 0f, 0f);
-
-        GameObject newbutton = GameObject.Find("New").gameObject;
-        newbutton.transform.localPosition = new Vector3(-4.4f, 0f, 0f);
-
+        openFile();
+        openPalette();
+        
         dropped = true;
 
     }
@@ -78,38 +102,13 @@ public class Dropdown : MonoBehaviour
     public void close()
     {
 
-        if (transform.GetChild(0).GetComponent<DropShovel>().getDropped())
+        /*if (palette.GetComponent<>().getDropped)
         {
-            transform.GetChild(0).GetComponent<DropShovel>().close();
-            transform.GetChild(0).GetComponent<DropShovel>().setDropped(false);
-        }
 
-        if (transform.GetChild(1).GetComponent<DropBrush>().getDropped())
-        {
-            transform.GetChild(1).GetComponent<DropBrush>().close();
-            transform.GetChild(1).GetComponent<DropBrush>().setDropped(false);
-        }
+        }*/
 
-        if (transform.GetChild(3).GetComponent<DropVeg>().getDropped())
-        {
-            transform.GetChild(3).GetComponent<DropVeg>().close();
-            transform.GetChild(3).GetComponent<DropVeg>().setDropped(false);
-        }
-
-        GameObject shovel = GameObject.Find("Menu").transform.GetChild(0).gameObject;
-        shovel.transform.localPosition = new Vector3(0f, 0f, 5f);
-
-        GameObject brush = GameObject.Find("Menu").transform.GetChild(1).gameObject;
-        brush.transform.localPosition = new Vector3(0f, 0f, 30f);
-
-        GameObject vegetation = GameObject.Find("vegetation").gameObject;
-        vegetation.transform.localPosition = new Vector3(0f, 0f, 40f);
-
-        GameObject save = GameObject.Find("Save").gameObject;
-        save.transform.localPosition = new Vector3(0f, 0f, 50f);
-
-        GameObject newbutton = GameObject.Find("New").gameObject;
-        newbutton.transform.localPosition = new Vector3(0f, 0f, 0f);
+        closeFile();
+        closePalette();
 
         dropped = false;
 
