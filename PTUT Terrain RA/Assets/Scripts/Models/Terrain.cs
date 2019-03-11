@@ -251,6 +251,7 @@ namespace Assets.Scripts.lib
             IDataReader reader = command.ExecuteReader();
             reader.Read();
             Id = reader.GetInt32(0);
+            command.Dispose();
 
             foreach (Chunk chunk in ChunkList)
             {
@@ -258,7 +259,6 @@ namespace Assets.Scripts.lib
                 chunk.save(dbConnection);
                 Debug.Log("End save Chunk " + chunk.Id);
             }
-            command.Dispose();
             Debug.Log("Insert Terrain with id: " + Id);
         }
 
@@ -305,6 +305,7 @@ namespace Assets.Scripts.lib
 
             Nom = reader.GetString(1);
             Size = reader.GetInt32(2);
+            command.Dispose();
             
 
             for(int i = 0; i<Size*Size; i++)

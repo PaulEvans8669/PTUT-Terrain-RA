@@ -182,10 +182,6 @@ namespace Assets.Scripts.lib
                 for (int textureX = 0; textureX < textureSize; textureX++)
                 {
                     Color color = new Color((float)113 / 255, (float)125 / 255, (float)45 / 255);
-                    if (textureX == 0 || textureX == textureSize - 1 || textureY == 0 || textureY == textureSize - 1)
-                    {
-                        color = new Color(0, 0, 1);
-                    }
                     Texture.SetPixel(textureX, textureY, color);
                 }
             }

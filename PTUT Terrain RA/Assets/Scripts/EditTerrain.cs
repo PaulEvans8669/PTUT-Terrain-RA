@@ -3,9 +3,8 @@ using Mono.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
-using System.Text;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,7 +16,22 @@ class EditTerrain : MonoBehaviour
 
     private Camera mainCamera;
 
-    public int TERRAIN_SIZE = 1;
+    private int terrain_Size;
+    public int TERRAIN_SIZE
+    {
+        get
+        {
+            return terrain_Size;
+        }
+        set
+        {
+            if (value >= 4)
+            {
+                terrain_Size = value;
+                GameObject.Find("CreateText").GetComponent<TextMeshPro>().text = value.ToString();
+            }
+        }
+    }
     private int CHUNK_SIZE = 32;
     private int TEXTURE_SIZE = 256;
 
@@ -40,7 +54,30 @@ class EditTerrain : MonoBehaviour
     private GameObject prefabDisplayObject;
     private Texture2D defaultDisplayPrefab;
 
+    private int mapListCursor;
+    public int MapListCursor
+    {
+        get
+        {
+            return mapListCursor;
+        }
+        set
+        {
+            if (value < 0)
+            {
+                value = mapList.Count-1;
+            }
+            else if(value > mapList.Count-1)
+            {
+                value = 0;
+            }
+            mapListCursor = value;
+            GameObject.Find("LoadText").GetComponent<TextMeshPro>().text = mapList.ElementAt(mapListCursor).Value.Replace(' ','\n');
+        }
+    }
+    public Dictionary<int, string> mapList { get; set; }
 
+    
 
 
     public Assets.Scripts.lib.Terrain MainTerrain { get; set; }
@@ -50,6 +87,8 @@ class EditTerrain : MonoBehaviour
 
     void Start()
     {
+        TERRAIN_SIZE = 4;
+
         mainCamera = Camera.main;
         spotLight = GameObject.Find("Spot Light");
         spotLight_Light = spotLight.GetComponent<Light>();
@@ -63,7 +102,7 @@ class EditTerrain : MonoBehaviour
         prefabList = new List<GameObject>();
         prefabList.Insert(0, null);
         prefabListCursor = 0;
-        prefabDisplayObject = GameObject.Find("vegetation");
+        prefabDisplayObject = GameObject.Find("Vegetation");
         defaultDisplayPrefab = prefabDisplayObject.GetComponent<Renderer>().material.mainTexture as Texture2D;
 
         loadTextures();
@@ -74,6 +113,9 @@ class EditTerrain : MonoBehaviour
 
         openConnection();
 
+        mapList = new Dictionary<int, string>();
+        updateMapList();
+        MapListCursor = 0;
     }
 
     void OnApplicationQuit()
@@ -86,18 +128,29 @@ class EditTerrain : MonoBehaviour
         checkPublicParametersValues();
         manageTerrainUpdates();
         manageDatabaseActions();
+    }
 
-        if (Input.GetKeyUp(KeyCode.G))
+    public void generateNewTerrain()
+    {
+        generated = true;
+        MainTerrain = new Assets.Scripts.lib.Terrain(this.gameObject, TERRAIN_SIZE);
+    }
+
+    private void updateMapList()
+    {
+        string sqlSelectCommand = "SELECT terrainId, name FROM 'Terrain';";
+        IDbCommand command = dbConnection.CreateCommand();
+        command.CommandText = sqlSelectCommand;
+        IDataReader reader = command.ExecuteReader();
+        while (reader.Read())
         {
-            if (!generated)
-            {
-                if (TERRAIN_SIZE < 4)
-                {
-                    TERRAIN_SIZE = 4;
-                }
-                MainTerrain = new Assets.Scripts.lib.Terrain(this.gameObject, TERRAIN_SIZE);
-            }
+            int id = reader.GetInt32(0);
+            string name = reader.GetString(1);
+
+            mapList.Add(id, name);
+
         }
+        command.Dispose();
     }
 
     private void loadTextures()
@@ -655,6 +708,21 @@ class EditTerrain : MonoBehaviour
         {
             Debug.Log("Connection already closed.");
         }
+    }
+
+    public void saveTerrain()
+    {
+        if (generated)
+        {
+            MainTerrain.Nom = DateTime.Now.ToString("dd/mm/yyyy HH:mm:ss");
+            MainTerrain.save(dbConnection);
+            updateMapList();
+        }
+    }
+
+    public void loadTerrain()
+    {
+        MainTerrain = new Assets.Scripts.lib.Terrain(dbConnection, this.gameObject, mapList.ElementAt(MapListCursor).Key);
     }
     #endregion
 }
