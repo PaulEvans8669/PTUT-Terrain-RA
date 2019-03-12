@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ControlCamera : MonoBehaviour {
 
-    private int CHUNK_SIZE;
+    private int CHUNK_SIZE = 32;
     private int TERRAIN_SIZE;
     private int terrainObjectSize;
     private Camera mainCamera;
@@ -12,8 +12,7 @@ public class ControlCamera : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         GameObject terrain = GameObject.Find("Terrain");
-        CHUNK_SIZE = terrain.GetComponent<GenerateTerrain>().getChunkSize();
-        TERRAIN_SIZE = terrain.GetComponent<GenerateTerrain>().getTerrainSize();
+        TERRAIN_SIZE = terrain.GetComponent<EditTerrain>().TERRAIN_SIZE;
         terrainObjectSize = CHUNK_SIZE * TERRAIN_SIZE;
 
         mainCamera = Camera.main;
